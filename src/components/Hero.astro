@@ -3,9 +3,9 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import '@fontsource/unifrakturcook/700.css';
 
-// 照片墙：倾斜海平面上的哥特 LOKY
-// 每张图片由一个线条勾勒的立方体托架从网格面上推起，
-// 海浪一波接一波沿斜 Z 轴推进，网格平面恒在
+// 照片墙：12 个格位各坐一个实心立方体（照片是它的脸），
+// 组成方块网格；海浪一波接一波扫过时，波峰处的立方体
+// 沿斜 Z 轴向上抽出，周围立方体保持静止
 const mods = import.meta.glob<{ default: ImageMetadata }>('../assets/wall/*.jpg', {
   eager: true,
 });
@@ -23,67 +23,54 @@ const tiles = [
   { file: '10-megalo-red.jpg', caption: 'MEGALO BOX', alt: 'MEGALO BOX：红色海报艺术' },
 ].map((t) => ({ ...t, src: mods[`../assets/wall/${t.file}`].default }));
 
-const initialSlots = [1, 8, 3, 10, 5];
 const wallData = JSON.stringify({
   urls: tiles.map((t) => t.src.src),
   alts: tiles.map((t) => t.alt),
   captions: tiles.map((t) => t.caption),
 });
 
-// 花瓣：致敬「烙印战士」的光中花瓣
-const petals = Array.from({ length: 10 }, (_, i) => ({
-  x: (i * 89 + 7) % 100,
-  delay: ((i * 1.9) % 11).toFixed(1),
-  dur: (12 + ((i * 5) % 4) * 2.4).toFixed(1),
-  s: (0.7 + ((i * 13) % 10) / 12).toFixed(2),
-}));
+// 12 个格位各分配一张图（10 图循环，重复的两张分排在远端）
+const cellImages = Array.from({ length: 12 }, (_, i) => {
+  const idx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 3][i];
+  return { tile: tiles[idx], imgIndex: idx };
+});
 ---
 
 <section id="hero" class="hero">
   <div class="hero-glow-a" aria-hidden="true"></div>
   <div class="hero-glow-b" aria-hidden="true"></div>
-  {
-    petals.map((p) => (
-      <span
-        class="petal"
-        aria-hidden="true"
-        style={`--x:${p.x}%; --delay:${p.delay}s; --dur:${p.dur}s; --s:${p.s};`}
-      />
-    ))
-  }
 
-  {/* —— 倾斜海平面：恒在网格 + 立方体托架海浪 —— */}
+  {/* —— 方块网格海：12 个实心立方体 —— */}
   <div class="wall-tilt">
     <div class="wall-plane">
       <div class="grid-surface" aria-hidden="true"></div>
-      <div class="wall-grid" aria-hidden="true">
-        {Array.from({ length: 12 }).map(() => <span class="slot" />)}
-      </div>
-      <div class="cubes" data-wave-wall>
+      <div class="wall-grid">
         {
-          initialSlots.map((slot, i) => (
-            <div class="cube-pos" data-slot={slot}>
-              <div class="pedestal" aria-hidden="true">
-                <div class="p-face p-front" />
-                <div class="p-face p-side" />
-                <div class="p-face p-bottom" />
+          cellImages.map((cell, i) => (
+            <div class="cell" data-slot={i}>
+              <div class="cube-pos" data-img={cell.imgIndex}>
+                <div class="cube" data-slot={i}>
+                  <div class="face face-top" />
+                  <div class="face face-right" />
+                  <figure class="face face-front">
+                    <div class="photo">
+                      <Image
+                        src={cell.tile.src}
+                        alt={cell.tile.alt}
+                        width={560}
+                        format="webp"
+                        quality={78}
+                        loading={i < 6 ? 'eager' : 'lazy'}
+                      />
+                      <figcaption>{cell.tile.caption}</figcaption>
+                    </div>
+                    <div class="cube-body">
+                      <i class="body-mark" aria-hidden="true" />
+                    </div>
+                  </figure>
+                </div>
+                <div class="cube-shadow" aria-hidden="true" />
               </div>
-              <div class="cube" data-img={i}>
-                <div class="face face-top" />
-                <div class="face face-right" />
-                <figure class="face face-front">
-                  <Image
-                    src={tiles[i].src}
-                    alt={tiles[i].alt}
-                    width={560}
-                    format="webp"
-                    quality={78}
-                    loading={i < 3 ? 'eager' : 'lazy'}
-                  />
-                  <figcaption>{tiles[i].caption}</figcaption>
-                </figure>
-              </div>
-              <div class="cube-shadow" />
             </div>
           ))
         }
@@ -142,39 +129,8 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     pointer-events: none;
   }
 
-  /* —— 花瓣 —— */
-  .petal {
-    position: absolute;
-    top: -4%;
-    left: var(--x);
-    width: calc(12px * var(--s));
-    height: calc(12px * var(--s));
-    background: linear-gradient(135deg, #e8b8dd, #c88fc0);
-    border-radius: 72% 0 72% 0;
-    opacity: 0;
-    pointer-events: none;
-    animation: petal-fall var(--dur) linear var(--delay) infinite;
-  }
-
-  @keyframes petal-fall {
-    0% {
-      transform: translate(0, 0) rotate(0deg);
-      opacity: 0;
-    }
-    8% {
-      opacity: 0.8;
-    }
-    55% {
-      transform: translate(30px, 34vh) rotate(200deg);
-    }
-    100% {
-      transform: translate(56px, 68vh) rotate(330deg);
-      opacity: 0;
-    }
-  }
-
   /* ============================================================
-     海平面：透视 + 倾斜墙面，恒在网格，立方体托架
+     方块网格海：每个格位一个实心立方体
      ============================================================ */
   .wall-tilt {
     position: relative;
@@ -191,14 +147,14 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     transform-style: preserve-3d;
   }
 
-  /* 恒在的网格面：立方体从这张“海面网格”上被推起 */
+  /* 海面网格纹理（恒在） */
   .grid-surface {
     position: absolute;
     inset: -34px -40px;
-    border: 1px solid rgba(190, 160, 255, 0.3);
+    border: 1px solid rgba(190, 160, 255, 0.26);
     background-image:
-      linear-gradient(rgba(190, 160, 255, 0.16) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(190, 160, 255, 0.16) 1px, transparent 1px);
+      linear-gradient(rgba(190, 160, 255, 0.13) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(190, 160, 255, 0.13) 1px, transparent 1px);
     background-size: 164px 164px;
     background-position: center;
     pointer-events: none;
@@ -210,81 +166,30 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     position: relative;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 24px;
+    gap: 20px;
   }
 
-  .slot {
-    aspect-ratio: 1;
-    /* 每个点位的格线恒在：立方体从这里被推起 */
-    border: 1px solid rgba(190, 160, 255, 0.22);
-    border-radius: 6px;
-  }
-
-  .cubes {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
+  /* 格位：立方体的"插座"，立方体升起后留下空腔 */
+  .cell {
+    position: relative;
+    aspect-ratio: 1 / 1.32;
+    border: 1.5px solid rgba(190, 160, 255, 0.26);
+    border-radius: 12px;
+    background:
+      radial-gradient(ellipse at 50% 60%, rgba(90, 50, 170, 0.18), transparent 70%),
+      rgba(10, 5, 24, 0.45);
   }
 
   .cube-pos {
     position: absolute;
-    left: 0;
-    top: 0;
+    inset: 4% 4%;
     opacity: 0;
     transform-style: preserve-3d;
     will-change: transform;
   }
 
-  .cubes[data-ready] .cube-pos {
+  .wall-grid[data-ready] .cube-pos {
     opacity: 1;
-  }
-
-  /* —— 立方体托架：线条恒在的支撑立方体 —— */
-  .pedestal {
-    position: absolute;
-    top: 100%;
-    left: 7%;
-    right: 7%;
-    height: 64px;
-    transform-style: preserve-3d;
-  }
-
-  .p-face {
-    position: absolute;
-    background: linear-gradient(rgba(30, 16, 54, 0.28), rgba(14, 7, 30, 0.5));
-  }
-
-  /* 托架前面：始终可见的立方体线条 */
-  .p-front {
-    inset: 0;
-    border: 1.5px solid rgba(200, 170, 255, 0.6);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    box-shadow: inset 0 -18px 24px rgba(10, 4, 30, 0.35);
-  }
-
-  /* 托架右侧面 */
-  .p-side {
-    top: 0;
-    height: 100%;
-    width: 26px;
-    left: 100%;
-    transform-origin: 0% 50%;
-    transform: rotateY(90deg);
-    border: 1.5px solid rgba(200, 170, 255, 0.4);
-    background: linear-gradient(rgba(24, 12, 46, 0.4), rgba(10, 5, 24, 0.6));
-  }
-
-  /* 托架底面（贴网格） */
-  .p-bottom {
-    left: 0;
-    right: 0;
-    top: 100%;
-    height: 26px;
-    transform-origin: 50% 0%;
-    transform: rotateX(-90deg);
-    border: 1.5px solid rgba(200, 170, 255, 0.35);
-    background: rgba(10, 5, 24, 0.55);
   }
 
   .cube {
@@ -299,30 +204,38 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     position: absolute;
   }
 
-  /* 正面：照片（深紫玻璃相框） */
+  /* 正面 = 立方体的脸：上 74% 照片 + 下 26% 立方体身 */
   .face-front {
     inset: 0;
-    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
     overflow: hidden;
     background: #170f2e;
-    border: 1px solid rgba(190, 160, 255, 0.32);
-    box-shadow: 0 26px 54px rgba(4, 0, 18, 0.6);
+    border: 1.5px solid rgba(200, 170, 255, 0.45);
+    box-shadow: 0 24px 48px rgba(4, 0, 18, 0.55);
     backface-visibility: hidden;
     cursor: pointer;
   }
 
-  .face-front img {
+  .photo {
+    position: relative;
+    height: 74%;
+    overflow: hidden;
+  }
+
+  .photo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
 
-  .face-front figcaption {
+  .photo figcaption {
     position: absolute;
     inset: auto 0 0 0;
-    padding: 30px 12px 11px;
-    font-size: 12.5px;
+    padding: 26px 10px 9px;
+    font-size: 12px;
     font-weight: 550;
     letter-spacing: 0.1em;
     color: #fff;
@@ -332,16 +245,33 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
   }
 
-  .face-front:hover figcaption {
+  .photo:hover figcaption {
     opacity: 1;
     transform: none;
+  }
+
+  /* 立方体身：实心、描边清晰，撑在照片底下 */
+  .cube-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #2b1c50 0%, #170e30 100%);
+    border-top: 1.5px solid rgba(200, 170, 255, 0.4);
+  }
+
+  .body-mark {
+    width: 26%;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(255, 138, 26, 0.35), #ff8c1a, rgba(255, 138, 26, 0.35));
   }
 
   /* 顶面：立方体厚度（受光更亮） */
   .face-top {
     left: 2%;
     width: 96%;
-    height: 24px;
+    height: 20px;
     bottom: 100%;
     transform-origin: 50% 100%;
     transform: rotateX(90deg);
@@ -354,7 +284,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
   .face-right {
     top: 2%;
     height: 96%;
-    width: 24px;
+    width: 20px;
     left: 100%;
     transform-origin: 0% 50%;
     transform: rotateY(90deg);
@@ -366,12 +296,12 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
   /* 海面投影 */
   .cube-shadow {
     position: absolute;
-    left: 12%;
-    right: 12%;
-    top: 106%;
-    height: 16px;
+    left: 8%;
+    right: 8%;
+    top: 103%;
+    height: 14px;
     border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(4, 0, 16, 0.7), transparent 70%);
+    background: radial-gradient(ellipse, rgba(4, 0, 16, 0.75), transparent 70%);
     filter: blur(3px);
   }
 
@@ -510,7 +440,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     }
     .wall-grid {
       grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
+      gap: 16px;
     }
     .grid-surface {
       inset: -26px -30px;
@@ -518,26 +448,15 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     }
   }
 
-  /* 无 JS 环境退化为静态网格 */
+  /* 无 JS 环境：静态方块网格 */
   @media (scripting: none) {
-    .cubes {
-      position: static;
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 24px;
-    }
     .cube-pos {
-      position: static !important;
       opacity: 1;
-      width: auto !important;
-      height: auto !important;
-      aspect-ratio: 1;
       transform: none !important;
     }
     .cube {
       transform: none !important;
     }
-    .pedestal,
     .face-top,
     .face-right {
       display: none;
@@ -546,21 +465,20 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
 </style>
 
 <script>
-  // 海洋波浪：波峰从左向右一波接一波推进
-  // - 相位只由「点位水平位置 - 时间」决定，所有立方体共享同一个波
-  // - 波峰过境时立方体沿斜 Z 轴快速"抽动"立起；托架（线条立方体）
-  //   随之向下伸展，始终连接网格面——图片是被立方体从网格上推上去的
+  // 方块网格海：12 个实心立方体全部常驻格位
+  // - 海浪为单一行进波（相位=xn*K - t/T，尖峰化），一波接一波从左向右扫过
+  // - 波峰过境时，所在格位的立方体沿斜 Z 轴向上"抽出"，升出插座位
+  //   （身下的格位空腔随之露出），周围立方体纹丝不动
+  // - 波谷时落回插座位，与网格齐平
   const initWaveWall = () => {
-    const layer = document.querySelector('[data-wave-wall]');
+    const grid = document.querySelector('.wall-grid');
     const dataEl = document.querySelector('[data-wall-data]');
-    if (!layer || !dataEl || layer.dataset.bound) return;
-    layer.dataset.bound = '1';
+    if (!grid || !dataEl || grid.dataset.bound) return;
+    grid.dataset.bound = '1';
 
     const data = JSON.parse(dataEl.textContent);
-    const cubes = [...layer.querySelectorAll('.cube')];
-    const slots = [...document.querySelectorAll('.wall-grid .slot')];
-    const plane = document.querySelector('.wall-plane');
-    if (!cubes.length || !slots.length || !plane) return;
+    const cells = [...grid.querySelectorAll('.cell')];
+    if (!cells.length) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // 预加载全部图片，轮换时无闪烁
@@ -569,23 +487,24 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
       im.src = u;
     });
 
-    const st = cubes.map((el, i) => ({
-      el,
-      pos: el.closest('.cube-pos'),
-      ped: el.closest('.cube-pos').querySelector('.pedestal'),
-      shadow: el.closest('.cube-pos').querySelector('.cube-shadow'),
-      slot: +el.closest('.cube-pos').dataset.slot,
-      img: +el.dataset.img,
-      j: i * 0.13, // 极小抖动，打破机械感
-      xn: 0,
-      w: 0,
-      x: 0,
-      y: 0,
-      tx: 0,
-      ty: 0,
-      cx: 0,
-      cy: 0,
-    }));
+    const st = cells.map((cell, i) => {
+      const pos = cell.querySelector('.cube-pos');
+      return {
+        el: pos.querySelector('.cube'),
+        pos,
+        shadow: pos.querySelector('.cube-shadow'),
+        img: +pos.dataset.img,
+        j: i * 0.11,
+        xn: 0,
+        w: 0,
+        x: 0,
+        y: 0,
+        tx: 0,
+        ty: 0,
+        cx: 0,
+        cy: 0,
+      };
+    });
 
     let bag = [];
     const nextImg = () => {
@@ -601,41 +520,24 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
       return bag.shift();
     };
 
-    // 用布局坐标（offset）定位，倾斜变换不影响正确性
     const place = () => {
       st.forEach((s) => {
-        const cell = slots[s.slot];
-        s.w = cell.offsetWidth * 0.86;
-        s.x = cell.offsetLeft + cell.offsetWidth / 2;
-        s.y = cell.offsetTop + cell.offsetHeight / 2;
-        s.xn = plane.clientWidth > 0 ? s.x / plane.clientWidth : 0;
-        s.pos.style.width = s.w + 'px';
-        s.pos.style.height = s.w + 'px';
+        s.xn =
+          cells.length > 0 ? (st.indexOf(s) % 6) / Math.max(1, cells.length / 2 - 1) : 0;
       });
-      layer.dataset.ready = '1';
+      grid.dataset.ready = '1';
     };
     place();
-    let resizeT;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeT);
-      resizeT = setTimeout(place, 120);
-    });
 
     // 入场：错峰浮现
     st.forEach((s, i) => {
       s.el.animate(
         [{ opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0)' }],
-        { duration: 650, delay: 120 + i * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }
+        { duration: 650, delay: 60 + i * 70, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }
       );
     });
 
-    if (reduce) {
-      st.forEach((s) => {
-        s.pos.style.transform = `translate3d(${s.x - s.w / 2}px, ${s.y - s.w / 2}px, 0)`;
-        s.el.style.transform = 'rotateX(-10deg) rotateY(-13deg)';
-      });
-      return;
-    }
+    if (reduce) return;
 
     // 指针倾斜
     st.forEach((s) => {
@@ -651,48 +553,42 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
       });
     });
 
-    // 海洋波浪主循环
-    const PLANE_TILT = 24; // 与 CSS .wall-plane 的 rotateX 保持一致
-    const Z_AMP = 200; // 浪高（px，沿斜 Z 轴）
-    const WAVE_T = 2600; // 一个波推进的周期（ms）
-    const WAVE_K = 2.1; // 墙面同屏可见的波数
-    const PED_BASE = 56; // 托架基础高度
+    // 海洋波浪主循环：波峰扫过谁，谁升起，其余全部静止
+    const Z_AMP = 190; // 抽出高度（px，沿斜 Z 轴）
+    const WAVE_T = 2400; // 一个波推进的周期（ms）
+    const WAVE_K = 2.3; // 同屏波数（多为窄峰：一次基本只抬一格）
     const t0 = performance.now();
     const tick = (now) => {
       const t = now - t0;
-      for (const s of st) {
-        const ph = (s.xn * WAVE_K - t / WAVE_T) * Math.PI + s.j;
-        let wave = Math.sin(ph); // -1..1
-        // 尖峰化：波峰过境时快速抽动立起，随后落回海面
-        wave = Math.sign(wave) * Math.pow(Math.abs(wave), 2);
-        const k = Math.max(0, wave); // 0 海面 .. 1 浪尖
+      for (let i = 0; i < st.length; i++) {
+        const s = st[i];
+        const col = i % 6;
+        const row = Math.floor(i / 6);
+        const ph = (col / 5) * WAVE_K * Math.PI - (t / WAVE_T) * Math.PI * 2 + row * 0.55 + s.j;
+        let wave = Math.sin(ph);
+        wave = Math.sign(wave) * Math.pow(Math.abs(wave), 3); // 窄峰：抽动干脆
+        const k = Math.max(0, wave);
         const z = k * Z_AMP;
         s.cx += (s.tx - s.cx) * 0.12;
         s.cy += (s.ty - s.cy) * 0.12;
-        const rx = -PLANE_TILT + 14 + s.cx - k * 7; // 浪尖时轻微后仰
+        const rx = -10 + s.cx - k * 6; // 升起时轻微后仰
         const ry = -13 + s.cy;
-        s.pos.style.transform = `translate3d(${s.x - s.w / 2}px, ${s.y - s.w / 2}px, ${z}px)`;
+        s.pos.style.transform = `translate3d(0, 0, ${z}px)`;
         s.pos.style.zIndex = String(Math.round(300 + z));
         s.el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-        s.el.style.opacity = (0.72 + k * 0.28).toFixed(3);
-        // 托架随抬升向下伸展，始终保持与网格面相连
-        if (s.ped) s.ped.style.height = `${PED_BASE + z * 0.42}px`;
+        s.el.style.opacity = (0.8 + k * 0.2).toFixed(3);
         if (s.shadow) {
-          s.shadow.style.opacity = (0.2 + k * 0.4).toFixed(3);
-          s.shadow.style.transform = `scaleX(${(0.72 + k * 0.5).toFixed(3)})`;
+          s.shadow.style.opacity = (0.5 - k * 0.25).toFixed(3);
+          s.shadow.style.transform = `scale(${(1 - k * 0.18).toFixed(3)})`;
         }
       }
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
 
-    // 轮播：随机一块淡出 → 新点位 + 新图片
+    // 轮播：随机一块淡出换图（图片在 12 个立方体间循环）
     setInterval(() => {
       const s = st[Math.floor(Math.random() * st.length)];
-      const occupied = new Set(st.map((x) => x.slot));
-      const free = slots.map((_, i) => i).filter((i) => !occupied.has(i));
-      if (!free.length) return;
-      const ns = free[Math.floor(Math.random() * free.length)];
       const ni = nextImg();
       s.el
         .animate(
@@ -700,9 +596,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
           { duration: 260, easing: 'ease-in' }
         )
         .onfinish = () => {
-          s.slot = ns;
           s.img = ni;
-          place();
           const img = s.el.querySelector('img');
           img.src = data.urls[ni];
           img.alt = data.alts[ni];
@@ -712,7 +606,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
             { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' }
           );
         };
-    }, 3200);
+    }, 3400);
   };
 
   document.addEventListener('astro:page-load', initWaveWall);
