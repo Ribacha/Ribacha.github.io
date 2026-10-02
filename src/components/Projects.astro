@@ -1,35 +1,35 @@
 ---
 import Emblem from './Emblem.astro';
 
-// 项目面板：展示 GitHub 上的代表项目（描述以 iOS 视角出发）
+// 项目面板：展示 GitHub 上的代表项目
 const projects = [
   {
     no: '01',
     name: 'RAG-Agent',
-    desc: 'RAG 与 Agent 的实践项目，为将来的 iOS 应用接入智能能力打底。',
+    desc: 'RAG 与 Agent 实践，为 iOS 智能能力打底。',
     lang: 'Python',
-    color: '#e0a32f',
+    color: '#d99a26',
   },
   {
     no: '02',
     name: 'Spotify-Clone-Objective-C',
-    desc: '用 Objective-C++ 复刻 Spotify 客户端界面与交互，练手大型 UI 工程。',
+    desc: '用 Objective-C++ 复刻 Spotify 界面与交互。',
     lang: 'Objective-C++',
-    color: '#a48ae8',
+    color: '#7b5cd6',
   },
   {
     no: '03',
     name: 'oc-study',
-    desc: 'Objective-C 学习笔记与代码练习，从语法基础一路写到运行时机制。',
+    desc: 'Objective-C 学习笔记，从语法到运行时。',
     lang: 'Objective-C',
-    color: '#e0492f',
+    color: '#c73a2b',
   },
   {
     no: '04',
     name: 'KKxx',
-    desc: '小实验与灵感碎片仓库，什么都可能出现在这里。',
+    desc: '小实验与灵感碎片。',
     lang: 'Playground',
-    color: '#6f6a75',
+    color: '#9d94ab',
   },
 ];
 ---
@@ -38,9 +38,7 @@ const projects = [
   <div class="container">
     <p class="panel-eyebrow reveal"><Emblem size={14} /> Projects · 项目</p>
     <h2 class="panel-title reveal" style="--d:1">做过的东西</h2>
-    <p class="panel-desc reveal" style="--d:2">
-      全部开源在 GitHub 上，点击卡片可以直接查看源码。
-    </p>
+    <p class="panel-desc reveal" style="--d:2">全部开源在 GitHub 上，点击卡片查看源码。</p>
     <div class="card-grid">
       {
         projects.map((p, i) => (

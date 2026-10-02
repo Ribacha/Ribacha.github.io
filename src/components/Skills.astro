@@ -22,17 +22,15 @@ const groups = [
   <div class="container">
     <p class="panel-eyebrow reveal"><Emblem size={14} /> Skills · 技能</p>
     <h2 class="panel-title reveal" style="--d:1">工具箱里有什么</h2>
-    <p class="panel-desc reveal" style="--d:2">
-      不追热点，一个一个学扎实。围绕 iOS，从框架到底层，再到正在打开的新地图。
-    </p>
+    <p class="panel-desc reveal" style="--d:2">不追热点，一个一个学扎实。</p>
     <div class="skill-groups">
       {
         groups.map((group, gi) => (
           <div class="skill-group reveal" style={`--d:${gi + 1}`}>
             <h3 class="group-label">{group.label}</h3>
             <ul class="pill-list">
-              {group.items.map((item, ii) => (
-                <li class="pill" style={`--d:${gi + ii}`}>{item}</li>
+              {group.items.map((item) => (
+                <li class="pill">{item}</li>
               ))}
             </ul>
           </div>
@@ -46,19 +44,19 @@ const groups = [
   .skill-groups {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 36px;
   }
 
   .group-label {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-tertiary);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
   .group-label::after {
@@ -91,6 +89,6 @@ const groups = [
   .pill:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-card-hover);
-    border-color: rgba(224, 73, 47, 0.5);
+    border-color: rgba(199, 58, 43, 0.45);
   }
 </style>

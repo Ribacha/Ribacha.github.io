@@ -1,25 +1,26 @@
 /* ============================================================
    Loky 个人网站 — 全局样式
-   视觉方向：暗夜 + 日轮朱红 + 紫晕（烙印战士 / MEGALO BOX / 鬼灭之刃）
-   所有颜色集中在 :root 变量中，装饰元素均为手绘 SVG / 纯 CSS。
+   视觉方向：淡紫晨光（格里菲斯水彩）+ 朱红点缀（日轮/烙印）
+   灵感：烙印战士 / 进击的巨人 / MEGALO BOX / 鬼灭之刃
+   所有颜色集中在 :root 变量中。
    ============================================================ */
 
 :root {
-  /* —— 暗夜主题 —— */
-  --bg: #0f0d10;
-  --bg-elevated: #17151a;
-  --bg-raised: #1e1b21;
-  --text: #ece7e1;
-  --text-secondary: #a9a4ad;
-  --text-tertiary: #6f6a75;
-  --accent: #e0492f;            /* 日轮朱红 */
-  --accent-deep: #b02f22;
-  --accent-soft: rgba(224, 73, 47, 0.14);
-  --accent-2: #a48ae8;          /* 紫晕 */
-  --accent-2-soft: rgba(164, 138, 232, 0.14);
-  --border: rgba(255, 255, 255, 0.08);
-  --shadow-card: 0 10px 32px rgba(0, 0, 0, 0.4);
-  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 24px rgba(224, 73, 47, 0.1);
+  /* —— 淡紫主题 —— */
+  --bg: #ece5f6;
+  --bg-elevated: #ffffff;
+  --bg-raised: #f6f2fb;
+  --text: #2b2433;
+  --text-secondary: #6d6479;
+  --text-tertiary: #9d94ab;
+  --accent: #c73a2b;            /* 日轮朱红 */
+  --accent-deep: #9c2418;
+  --accent-soft: rgba(199, 58, 43, 0.1);
+  --accent-2: #7b5cd6;          /* 紫晕 */
+  --accent-2-soft: rgba(123, 92, 214, 0.12);
+  --border: rgba(43, 36, 51, 0.1);
+  --shadow-card: 0 10px 30px rgba(93, 70, 140, 0.12);
+  --shadow-card-hover: 0 22px 50px rgba(93, 70, 140, 0.22);
 
   /* —— 字体 —— */
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
@@ -54,7 +55,7 @@ html.sidebar-open {
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg);
+  background: linear-gradient(180deg, #f3eefb 0%, #e8dff5 42%, #efe8f9 100%);
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -80,12 +81,12 @@ img {
 
 /* —— 面板 —— */
 .panel {
-  padding: 130px 0;
+  padding: 120px 0;
   border-top: 1px solid var(--border);
   position: relative;
 }
 
-/* 面板眉头：纹章 + 细线 + 字距标签（有设计感的 Collection 开头） */
+/* 面板眉头：纹章 + 字距标签（克制的 Collection 开头） */
 .panel-eyebrow {
   display: flex;
   align-items: center;
@@ -106,11 +107,11 @@ img {
 }
 
 .panel-title {
-  font-size: clamp(34px, 5vw, 56px);
+  font-size: clamp(32px, 4.6vw, 52px);
   font-weight: 700;
   letter-spacing: -0.022em;
   line-height: 1.12;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 /* 标题下的刀光细线 */
@@ -119,16 +120,16 @@ img {
   display: block;
   width: 72px;
   height: 2px;
-  margin-top: 22px;
+  margin-top: 20px;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent), rgba(224, 73, 47, 0));
+  background: linear-gradient(90deg, var(--accent), rgba(199, 58, 43, 0));
 }
 
 .panel-desc {
-  font-size: clamp(17px, 2vw, 21px);
+  font-size: clamp(16px, 1.8vw, 19px);
   color: var(--text-secondary);
-  max-width: 640px;
-  margin-bottom: 56px;
+  max-width: 560px;
+  margin-bottom: 52px;
 }
 
 /* —— 卡片：装甲切角 + 刀光顶线 —— */
@@ -144,7 +145,7 @@ img {
   border: 1px solid var(--border);
   /* 右上装甲切角（MEGALO BOX 的机甲板件感） */
   clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-  padding: 30px 28px 32px;
+  padding: 28px 26px 30px;
   box-shadow: var(--shadow-card);
   transition: transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out),
     border-color 0.4s ease;
@@ -158,7 +159,7 @@ img {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--accent), rgba(224, 73, 47, 0));
+  background: linear-gradient(90deg, var(--accent), rgba(199, 58, 43, 0));
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.55s var(--ease-out);
@@ -167,19 +168,19 @@ img {
 .card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(224, 73, 47, 0.4);
+  border-color: rgba(199, 58, 43, 0.35);
 }
 
 .card:hover::before {
   transform: scaleX(1);
 }
 
-/* 卡片头部：编号 + 渐细线（代替小图标，作为 collection 开头） */
+/* 卡片头部：编号 + 渐细线 */
 .card-top {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .card-no {
@@ -197,14 +198,14 @@ img {
 }
 
 .card-title {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 650;
   letter-spacing: -0.01em;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .card-text {
-  font-size: 15px;
+  font-size: 14.5px;
   color: var(--text-secondary);
 }
 
@@ -318,8 +319,8 @@ h3:active {
 }
 
 .prose pre {
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
+  background: #241c2b;
+  border: 1px solid rgba(43, 36, 51, 0.2);
   border-radius: 14px;
   padding: 18px 20px;
   overflow-x: auto;
@@ -330,6 +331,7 @@ h3:active {
   background: none;
   border: none;
   padding: 0;
+  color: #ece7e1;
 }
 
 .prose hr {

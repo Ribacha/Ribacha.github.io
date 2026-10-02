@@ -8,9 +8,7 @@ import Emblem from './Emblem.astro';
   <div class="container contact-wrap">
     <p class="panel-eyebrow reveal"><Emblem size={14} /> Contact · 联系我</p>
     <h2 class="panel-title reveal" style="--d:1">来找我玩</h2>
-    <p class="panel-desc reveal" style="--d:2">
-      想聊 iOS、Objective-C 底层，或者只是打个招呼，都欢迎。
-    </p>
+    <p class="panel-desc reveal" style="--d:2">想聊 iOS，或者只是打个招呼，都欢迎。</p>
     <div class="contact-actions reveal" style="--d:3">
       <a
         class="btn btn-primary"
@@ -52,7 +50,7 @@ import Emblem from './Emblem.astro';
   .contact-wrap .panel-title::after {
     margin-left: auto;
     margin-right: auto;
-    background: linear-gradient(90deg, rgba(224, 73, 47, 0), var(--accent), rgba(224, 73, 47, 0));
+    background: linear-gradient(90deg, rgba(199, 58, 43, 0), var(--accent), rgba(199, 58, 43, 0));
   }
 
   .contact-wrap .panel-desc {
@@ -68,9 +66,9 @@ import Emblem from './Emblem.astro';
   }
 
   .btn {
-    padding: 15px 36px;
+    padding: 14px 34px;
     border-radius: 999px;
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 600;
     transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out),
       background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
@@ -79,12 +77,12 @@ import Emblem from './Emblem.astro';
   .btn-primary {
     background: linear-gradient(135deg, var(--accent), var(--accent-deep));
     color: #fff;
-    box-shadow: 0 8px 30px rgba(224, 73, 47, 0.25);
+    box-shadow: 0 8px 28px rgba(199, 58, 43, 0.28);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 40px rgba(224, 73, 47, 0.4);
+    box-shadow: 0 14px 38px rgba(199, 58, 43, 0.4);
   }
 
   .btn-ghost {
@@ -95,7 +93,7 @@ import Emblem from './Emblem.astro';
 
   .btn-ghost:hover {
     transform: translateY(-2px);
-    border-color: rgba(224, 73, 47, 0.5);
+    border-color: rgba(199, 58, 43, 0.45);
     color: var(--accent);
   }
 

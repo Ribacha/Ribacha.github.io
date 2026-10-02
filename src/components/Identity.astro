@@ -1,27 +1,27 @@
 ---
 import Emblem from './Emblem.astro';
 
-// 个人身份面板：以 iOS 为基准
+// 个人身份面板：以 iOS 为基准，文案做减法
 const cards = [
   {
     no: '01',
     title: 'iOS 开发者',
-    text: '以 Objective-C / Objective-C++ 为主力， UIKit 的深度使用者，把界面与交互打磨到像素级。',
+    text: 'Objective-C / Objective-C++ 主力，把界面打磨到像素级。',
   },
   {
     no: '02',
     title: '底层与原理',
-    text: 'Runtime、内存管理、Core Animation 渲染管线——知其然，更要知其所以然。',
+    text: 'Runtime、内存管理、渲染管线——知其所以然。',
   },
   {
     no: '03',
     title: '计算机基础',
-    text: '数据结构与算法、操作系统、计算机网络、设计模式——iOS 大厦下面的地基。',
+    text: '算法、操作系统、网络、设计模式，是地基。',
   },
   {
     no: '04',
     title: 'AI × iOS',
-    text: '正在探索 RAG 与 Agent，为下一代 iOS 智能应用储备弹药。',
+    text: '探索 RAG 与 Agent，为智能应用储备弹药。',
   },
 ];
 ---
@@ -30,10 +30,7 @@ const cards = [
   <div class="container">
     <p class="panel-eyebrow reveal"><Emblem size={14} /> Identity · 个人身份</p>
     <h2 class="panel-title reveal" style="--d:1">你好，我是 Loky</h2>
-    <p class="panel-desc reveal" style="--d:2">
-      一个把 iOS 做到手艺层面的开发者。白天写 Objective-C，晚上研究底层原理，
-      间歇折腾 AI 工具链——像磨刀一样磨自己。
-    </p>
+    <p class="panel-desc reveal" style="--d:2">白天写 Objective-C，晚上研究底层，像磨刀一样磨自己。</p>
     <div class="card-grid">
       {
         cards.map((card, i) => (

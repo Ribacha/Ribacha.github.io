@@ -1,199 +1,202 @@
 ---
-// 首屏：日轮背景（鬼灭）+ 火星飘粒 + 字符级渐入 + 滚动视差
-const name = 'Loky';
-// 火星粒子参数由索引确定，服务端生成，无随机抖动
-const embers = Array.from({ length: 14 }, (_, i) => ({
-  x: (i * 71 + 13) % 100,
-  delay: ((i * 1.37) % 9).toFixed(1),
-  dur: (9 + ((i * 7) % 5) * 1.9).toFixed(1),
-  scale: (0.6 + ((i * 11) % 10) / 14).toFixed(2),
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import LokyMark from './LokyMark.astro';
+
+// 照片墙：PlayStation 游戏墙式的浮游方块（Astro 资产管线自动压缩转 webp）
+const mods = import.meta.glob<{ default: ImageMetadata }>('../assets/wall/*.jpg', {
+  eager: true,
+});
+
+const tiles = [
+  { file: '01-guts-light.jpg', caption: '烙印战士', alt: '烙印战士：花瓣与光中伸手的格斯' },
+  { file: '02-guts-griffith.jpg', caption: '烙印战士', alt: '烙印战士：格斯与格里菲斯' },
+  { file: '03-megalo-joe.jpg', caption: 'MEGALO BOX', alt: 'MEGALO BOX：装甲侧影的 Joe' },
+  { file: '04-griffith-wing.jpg', caption: '烙印战士', alt: '烙印战士：光翼的格里菲斯水彩' },
+  { file: '05-uzui-sun.jpg', caption: '鬼灭之刃', alt: '鬼灭之刃：日轮之下的音柱' },
+  { file: '06-levi-kenny.jpg', caption: '进击的巨人', alt: '进击的巨人：利威尔与肯尼' },
+  { file: '07-griffith-smile.jpg', caption: '烙印战士', alt: '烙印战士：微笑的格里菲斯' },
+  { file: '08-guts-snow.jpg', caption: '烙印战士', alt: '烙印战士：雪原中举剑的格斯' },
+  { file: '09-levi-eren.jpg', caption: '进击的巨人', alt: '进击的巨人：利威尔与艾伦' },
+  { file: '10-megalo-red.jpg', caption: 'MEGALO BOX', alt: 'MEGALO BOX：红色海报艺术' },
+].map((t) => ({ ...t, src: mods[`../assets/wall/${t.file}`].default }));
+
+// 花瓣：致敬「烙印战士」第一张图的光中花瓣，参数由索引确定
+const petals = Array.from({ length: 10 }, (_, i) => ({
+  x: (i * 89 + 7) % 100,
+  delay: ((i * 1.9) % 11).toFixed(1),
+  dur: (12 + ((i * 5) % 4) * 2.4).toFixed(1),
+  s: (0.7 + ((i * 13) % 10) / 12).toFixed(2),
 }));
 ---
 
 <section id="hero" class="hero">
-  <!-- 日轮：致敬鬼灭之刃的巨日 -->
-  <div class="hero-sun" aria-hidden="true"></div>
-  <!-- 火星飘粒：烙印蚀刻、日轮飞散、机箱余烬 -->
+  <div class="hero-glow-warm" aria-hidden="true"></div>
+  <div class="hero-glow-violet" aria-hidden="true"></div>
   {
-    embers.map((e) => (
+    petals.map((p) => (
       <span
-        class="ember"
+        class="petal"
         aria-hidden="true"
-        style={`--x:${e.x}%; --delay:${e.delay}s; --dur:${e.dur}s; --s:${e.scale};`}
+        style={`--x:${p.x}%; --delay:${p.delay}s; --dur:${p.dur}s; --s:${p.s};`}
       />
     ))
   }
 
-  <div class="hero-inner container">
-    <p class="hero-eyebrow">剑 · 日轮 · 铁拳</p>
-    <h1 class="hero-title" aria-label={name} transition:persist>
+  <div class="container">
+    <div class="hero-copy">
+      <h1 class="hero-title" aria-label="Loky">
+        <LokyMark />
+      </h1>
+      <p class="hero-subtitle">iOS 开发者</p>
+      <p class="hero-quote">「千磨万击还坚劲，任尔东西南北风。」</p>
+      <a class="hero-cta" href="#identity">开始了解 ↓</a>
+    </div>
+
+    <!-- 照片墙：浮游方块 -->
+    <div class="wall" data-wall aria-label="喜欢的动漫作品照片墙">
       {
-        name.split('').map((ch, i) => (
-          <span class="char" style={`--i:${i}`} aria-hidden="true">
-            {ch}
-          </span>
+        tiles.map((t, i) => (
+          <div
+            class="tile-wrap reveal"
+            style={`--d:${i % 5}; --fd:${(6 + (i % 4) * 1.4).toFixed(1)}s; --fdel:${((i * 0.9) % 5).toFixed(1)}s;`}
+          >
+            <figure class="tile">
+              <Image
+                src={t.src}
+                alt={t.alt}
+                width={560}
+                format="webp"
+                quality={78}
+                loading={i < 5 ? 'eager' : 'lazy'}
+              />
+              <figcaption>{t.caption}</figcaption>
+            </figure>
+          </div>
         ))
       }
-    </h1>
-    <p class="hero-subtitle">iOS 开发者</p>
-    <p class="hero-quote">「千磨万击还坚劲，任尔东西南北风。」</p>
-    <a class="hero-cta" href="#identity">开始了解 ↓</a>
-  </div>
-
-  <div class="hero-scroll-cue" aria-hidden="true">
-    <span class="cue-dot"></span>
+    </div>
   </div>
 </section>
 
 <style>
   .hero {
     position: relative;
-    min-height: 100svh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 150px 0 90px;
     overflow: hidden;
     text-align: center;
   }
 
-  /* —— 日轮：巨日悬浮于标题之后 —— */
-  .hero-sun {
+  /* —— 柔光：暖光在上、紫晕在侧 —— */
+  .hero-glow-warm {
     position: absolute;
-    top: 9%;
+    top: -20%;
     left: 50%;
-    width: min(74vmin, 660px);
-    aspect-ratio: 1;
     transform: translateX(-50%);
+    width: min(72vmin, 620px);
+    aspect-ratio: 1;
     border-radius: 50%;
-    background: radial-gradient(
-      circle at 50% 46%,
-      rgba(255, 158, 84, 0.5),
-      rgba(224, 73, 47, 0.26) 46%,
-      rgba(176, 47, 34, 0.1) 62%,
-      transparent 72%
-    );
-    filter: blur(10px);
+    background: radial-gradient(circle, rgba(255, 178, 122, 0.38), rgba(255, 178, 122, 0) 65%);
+    filter: blur(28px);
     pointer-events: none;
-    animation: sun-pulse 7s ease-in-out infinite;
   }
 
-  @keyframes sun-pulse {
-    50% {
-      opacity: 0.82;
-      transform: translateX(-50%) scale(1.045);
-    }
-  }
-
-  /* —— 火星飘粒：自下而上 drifting —— */
-  .ember {
+  .hero-glow-violet {
     position: absolute;
-    bottom: -2%;
-    left: var(--x);
-    width: calc(4px * var(--s));
-    height: calc(4px * var(--s));
+    bottom: -16%;
+    right: -12%;
+    width: 46vmax;
+    aspect-ratio: 1;
     border-radius: 50%;
-    background: radial-gradient(circle, #ffb37a, #e0492f 70%);
-    box-shadow: 0 0 8px rgba(224, 73, 47, 0.8);
+    background: radial-gradient(circle, rgba(123, 92, 214, 0.16), rgba(123, 92, 214, 0) 62%);
+    filter: blur(30px);
+    pointer-events: none;
+  }
+
+  /* —— 花瓣 —— */
+  .petal {
+    position: absolute;
+    top: -4%;
+    left: var(--x);
+    width: calc(12px * var(--s));
+    height: calc(12px * var(--s));
+    background: linear-gradient(135deg, #f7cddd, #eb9fbc);
+    border-radius: 72% 0 72% 0;
     opacity: 0;
     pointer-events: none;
-    animation: ember-rise var(--dur) linear var(--delay) infinite;
+    animation: petal-fall var(--dur) linear var(--delay) infinite;
   }
 
-  @keyframes ember-rise {
+  @keyframes petal-fall {
     0% {
-      transform: translate(0, 0);
+      transform: translate(0, 0) rotate(0deg);
       opacity: 0;
     }
     8% {
-      opacity: 0.9;
+      opacity: 0.85;
     }
-    60% {
-      transform: translate(24px, -46vh);
-      opacity: 0.55;
+    55% {
+      transform: translate(30px, 34vh) rotate(200deg);
     }
     100% {
-      transform: translate(46px, -78vh);
+      transform: translate(56px, 68vh) rotate(330deg);
       opacity: 0;
     }
   }
 
-  .hero-inner {
+  /* —— 文字区（简约）—— */
+  .hero-copy {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
-    padding-top: 48px;
-  }
-
-  .hero-eyebrow {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.32em;
-    color: var(--text-secondary);
+    gap: 14px;
   }
 
   .hero-title {
-    font-size: clamp(64px, 15vw, 148px);
-    font-weight: 750;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-    white-space: nowrap;
-    text-shadow: 0 0 80px rgba(224, 73, 47, 0.35);
+    line-height: 0;
+    animation: rise-in 0.9s var(--ease-out) both;
   }
 
-  /* 字符级渐入 */
-  .hero-title .char {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(46px) rotate(4deg);
-    animation: char-in 0.9s var(--ease-out) forwards;
-    animation-delay: calc(var(--i) * 90ms + 250ms);
-    will-change: transform, opacity;
-  }
-
-  @keyframes char-in {
-    to {
-      opacity: 1;
-      transform: none;
-    }
+  /* 字标 SVG 在子组件内部，需用 :global 穿透作用域 */
+  .hero-title :global(svg.loky-mark) {
+    width: clamp(270px, 40vw, 420px);
+    height: auto;
+    filter: drop-shadow(0 12px 28px rgba(43, 28, 64, 0.28));
   }
 
   .hero-subtitle {
-    font-size: clamp(18px, 2.4vw, 24px);
+    font-size: clamp(17px, 2vw, 20px);
     font-weight: 500;
     color: var(--text-secondary);
-    animation: rise-in 0.9s var(--ease-out) both;
-    animation-delay: 0.85s;
+    letter-spacing: 0.14em;
+    animation: rise-in 0.9s var(--ease-out) 0.25s both;
   }
 
-  /* 座右铭：衬线体，古典气质 */
   .hero-quote {
     font-family: var(--font-serif);
-    font-size: clamp(15px, 1.9vw, 18px);
+    font-size: clamp(14px, 1.7vw, 17px);
     letter-spacing: 0.08em;
     color: var(--text-tertiary);
-    animation: rise-in 0.9s var(--ease-out) both;
-    animation-delay: 1s;
+    animation: rise-in 0.9s var(--ease-out) 0.4s both;
   }
 
   .hero-cta {
-    margin-top: 26px;
-    padding: 14px 34px;
+    margin-top: 16px;
+    padding: 13px 32px;
     border-radius: 999px;
     background: linear-gradient(135deg, var(--accent), var(--accent-deep));
     color: #fff;
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 600;
-    box-shadow: 0 8px 30px rgba(224, 73, 47, 0.25);
-    animation: rise-in 0.9s var(--ease-out) both;
-    animation-delay: 1.15s;
+    box-shadow: 0 8px 28px rgba(199, 58, 43, 0.28);
+    animation: rise-in 0.9s var(--ease-out) 0.55s both;
     transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
   }
 
   .hero-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 40px rgba(224, 73, 47, 0.4);
+    box-shadow: 0 14px 38px rgba(199, 58, 43, 0.4);
   }
 
   @keyframes rise-in {
@@ -207,45 +210,120 @@ const embers = Array.from({ length: 14 }, (_, i) => ({
     }
   }
 
-  /* 向下滚动提示：呼吸的小圆点 */
-  .hero-scroll-cue {
-    position: absolute;
-    bottom: 34px;
-    left: 50%;
-    transform: translateX(-50%);
-    animation: rise-in 1s var(--ease-out) 1.6s both;
+  /* —— 照片墙（PlayStation 游戏墙式浮游方块）—— */
+  .wall {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 18px;
+    margin-top: 72px;
   }
 
-  .cue-dot {
-    display: block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 12px rgba(224, 73, 47, 0.8);
-    animation: cue-breathe 2.2s ease-in-out infinite;
+  /* 每个方块各自缓慢浮游 */
+  .tile-wrap {
+    animation: tile-float var(--fd, 7s) ease-in-out var(--fdel, 0s) infinite alternate;
   }
 
-  @keyframes cue-breathe {
-    0%,
-    100% {
-      transform: translateY(0);
-      opacity: 0.45;
+  @keyframes tile-float {
+    from {
+      transform: translateY(-4px);
     }
-    50% {
-      transform: translateY(10px);
-      opacity: 1;
+    to {
+      transform: translateY(5px);
+    }
+  }
+
+  .tile {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 1;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 14px 34px rgba(93, 70, 140, 0.18);
+    cursor: pointer;
+    /* 3D 倾斜（--rx/--ry 由指针驱动）+ 悬停放大 */
+    transform: perspective(720px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+      scale(var(--s, 1));
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
+    will-change: transform;
+  }
+
+  .tile:hover {
+    --s: 1.06;
+    box-shadow: 0 28px 58px rgba(93, 70, 140, 0.32), 0 0 0 1px rgba(199, 58, 43, 0.28);
+    z-index: 2;
+  }
+
+  .tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .tile figcaption {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 30px 12px 11px;
+    font-size: 12.5px;
+    font-weight: 550;
+    letter-spacing: 0.1em;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(27, 20, 32, 0.75));
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+  }
+
+  .tile:hover figcaption {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding-top: 120px;
+    }
+    .wall {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+      margin-top: 56px;
     }
   }
 </style>
 
 <script>
-  // 滚动视差：首屏内容随滚动轻微上移并淡出（Apple 产品页质感）
+  // 照片墙 3D 倾斜：指针在方块内移动时，方块朝指针方向微微翻转
+  const initTilt = () => {
+    const wall = document.querySelector<HTMLElement>('[data-wall]');
+    if (!wall || wall.dataset.tiltBound) return;
+    wall.dataset.tiltBound = '1';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    wall.querySelectorAll<HTMLElement>('.tile').forEach((tile) => {
+      if (tile.dataset.tilt) return;
+      tile.dataset.tilt = '1';
+      tile.addEventListener('pointermove', (e) => {
+        const r = tile.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        tile.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`);
+        tile.style.setProperty('--ry', `${(x * 12).toFixed(2)}deg`);
+      });
+      tile.addEventListener('pointerleave', () => {
+        tile.style.setProperty('--rx', '0deg');
+        tile.style.setProperty('--ry', '0deg');
+      });
+    });
+  };
+
+  // 首屏文字滚动视差：轻微上移并淡出
   const initParallax = () => {
-    const hero = document.getElementById('hero');
-    const inner = hero?.querySelector<HTMLElement>('.hero-inner');
-    if (!hero || !inner || inner.dataset.parallaxBound) return;
-    inner.dataset.parallaxBound = '1';
+    const copy = document.querySelector<HTMLElement>('.hero-copy');
+    if (!copy || copy.dataset.parallaxBound) return;
+    copy.dataset.parallaxBound = '1';
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     let ticking = false;
@@ -253,8 +331,8 @@ const embers = Array.from({ length: 14 }, (_, i) => ({
       ticking = false;
       const y = window.scrollY;
       if (y < window.innerHeight) {
-        inner.style.transform = `translateY(${y * 0.22}px)`;
-        inner.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.7)));
+        copy.style.transform = `translateY(${y * 0.18}px)`;
+        copy.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.6)));
       }
     };
     window.addEventListener(
@@ -269,5 +347,8 @@ const embers = Array.from({ length: 14 }, (_, i) => ({
     );
   };
 
-  document.addEventListener('astro:page-load', initParallax);
+  document.addEventListener('astro:page-load', () => {
+    initTilt();
+    initParallax();
+  });
 </script>
