@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import Emblem from '../components/Emblem.astro';
+---
+
+<Base
+  title="装备 · Loky"
+  description="Loky 的装备清单 — 开发环境、效率工具与硬件。"
+  secondary={{ label: '装备 · Uses', back: { href: '/', label: '返回首页' } }}
+>
+  <section class="panel uses-head">
+    <div class="container">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Uses · 装备</p>
+      <h1 class="panel-title reveal" style="--d:1">吃饭的家伙什</h1>
+      <p class="panel-desc reveal" style="--d:2">工欲善其事，必先利其器。这份清单会随着折腾持续更新。</p>
+
+      <div class="uses-groups">
+        <div class="use-group reveal">
+          <h2 class="group-title">开发环境</h2>
+          <ul class="use-list">
+            <li><span class="u-name">MacBook</span><span class="u-desc">iOS 开发主力机，Xcode 常驻</span></li>
+            <li><span class="u-name">Xcode</span><span class="u-desc">Objective-C 与 Swift 的主战场</span></li>
+            <li><span class="u-name">VS Code</span><span class="u-desc">写 Python、Markdown 与这个网站的代码</span></li>
+            <li><span class="u-name">iPhone</span><span class="u-desc">真机调试 + 日常主力机</span></li>
+            <li><span class="u-name">Apple Watch</span><span class="u-desc">「凪」Watch 端的测试设备</span></li>
+          </ul>
+        </div>
+
+        <div class="use-group reveal" style="--d:1">
+          <h2 class="group-title">效率与工具</h2>
+          <ul class="use-list">
+            <li><span class="u-name">Obsidian</span><span class="u-desc">知识库与博客文章的源头，双链笔记</span></li>
+            <li><span class="u-name">GitHub</span><span class="u-desc">代码托管 + 本站的 Pages 托管</span></li>
+            <li><span class="u-name">Astro</span><span class="u-desc">本站的静态站框架，构建快、零默认 JS</span></li>
+            <li><span class="u-name">阿里云</span><span class="u-desc">域名解析与这台正在跑的服务器</span></li>
+          </ul>
+        </div>
+
+        <div class="use-group reveal" style="--d:2">
+          <h2 class="group-title">研究转向中</h2>
+          <ul class="use-list">
+            <li><span class="u-name">Swift / SwiftUI</span><span class="u-desc">正在补的新地图</span></li>
+            <li><span class="u-name">RAG / Agent</span><span class="u-desc">把 AI 能力装进 iOS 的弹药库</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .uses-head {
+    min-height: 55vh;
+  }
+
+  .uses-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+    max-width: 760px;
+  }
+
+  .use-group {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+    padding: 26px 28px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.4s ease;
+  }
+
+  .use-group:hover {
+    border-color: rgba(255, 138, 26, 0.35);
+  }
+
+  .group-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .use-list {
+    list-style: none;
+  }
+
+  .use-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .use-list li:last-child {
+    border-bottom: none;
+  }
+
+  .u-name {
+    flex: none;
+    width: 150px;
+    font-weight: 650;
+    font-size: 15px;
+  }
+
+  .u-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+</style>

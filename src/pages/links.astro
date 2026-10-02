@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+import Emblem from '../components/Emblem.astro';
+---
+
+<Base
+  title="友链 · Loky"
+  description="Loky 的友链 — 朋友与推荐站点，交换友链请联系我。"
+  secondary={{ label: '友链 · Links', back: { href: '/', label: '返回首页' } }}
+>
+  <section class="panel links-head">
+    <div class="container">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Links · 友链</p>
+      <h1 class="panel-title reveal" style="--d:1">串门儿的地方</h1>
+      <p class="panel-desc reveal" style="--d:2">
+        友链正在筹备中——如果你也想交换友链，欢迎通过
+        <a class="inline-link" href="https://github.com/Ribacha" target="_blank" rel="noopener noreferrer">GitHub</a>
+        或<a class="inline-link" href="mailto:out13572034101@qq.com">邮件</a>联系我。
+      </p>
+
+      <div class="invite card reveal" style="--d:3">
+        <div class="card-top">
+          <span class="card-no">06</span>
+          <span class="card-line" aria-hidden="true" />
+        </div>
+        <h2 class="card-title">交换友链需要什么</h2>
+        <ul class="require-list">
+          <li><span class="req-no">01</span>你的站点名称与链接</li>
+          <li><span class="req-no">02</span>一个头像或图标（可选）</li>
+          <li><span class="req-no">03</span>一句话介绍你的站点</li>
+        </ul>
+        <p class="require-note">
+          本站信息：Loky · https://lokykkxx.cn · iOS 开发者的个人小站
+        </p>
+      </div>
+
+      <div class="placeholder reveal" style="--d:4">
+        <span class="placeholder-mark" aria-hidden="true">▽</span>
+        <p>这里以后会挂上朋友们的小站</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .links-head {
+    min-height: 65vh;
+  }
+
+  .inline-link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .invite {
+    max-width: 640px;
+    margin-bottom: 40px;
+  }
+
+  .require-list {
+    list-style: none;
+    margin: 10px 0 14px;
+  }
+
+  .require-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 0;
+    font-size: 14.5px;
+    color: var(--text-secondary);
+  }
+
+  .req-no {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .require-note {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    border-top: 1px dashed var(--border);
+    padding-top: 12px;
+  }
+
+  .placeholder {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 26px 4px;
+    color: var(--text-tertiary);
+    font-size: 14.5px;
+  }
+
+  .placeholder-mark {
+    font-size: 20px;
+    color: var(--accent-2);
+    animation: mark-float 3s ease-in-out infinite;
+  }
+
+  @keyframes mark-float {
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+</style>

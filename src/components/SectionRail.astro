@@ -106,12 +106,6 @@ const items = [
 
     const setActive = (key: string) => {
       items.forEach((el) => el.classList.toggle('active', el.dataset.key === key));
-      document.querySelectorAll('#sidebar-root .sidebar-link').forEach((a) => {
-        const on = (a as HTMLElement).dataset.key === key;
-        a.classList.toggle('active', on);
-        if (on) a.setAttribute('aria-current', 'page');
-        else a.removeAttribute('aria-current');
-      });
     };
 
     let ticking = false;

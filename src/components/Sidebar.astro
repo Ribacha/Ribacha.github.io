@@ -1,18 +1,20 @@
 ---
-// 侧边栏：右上角按钮唤出，毛玻璃遮罩 + 弹性滑入
-// 博客为最高优先级入口（排第一）；当前页面对应的分类会高亮
+// 侧边栏：右上角按钮唤出 = 全站「二级界面目录」
+// 首页内部导航已由左侧小字刻度导航（SectionRail）承担；
+// 这里的每一项都是一个二级界面的入口（橙色信号），顶部是返回一级界面的入口（紫色信号）
 const navItems = [
   { href: '/blog/', label: '博客', en: 'Blog', key: 'blog' },
-  { href: '/', label: '首页', en: 'Home', key: 'home' },
-  { href: '/#identity', label: '个人身份', en: 'Identity', key: 'identity' },
-  { href: '/#skills', label: '技能', en: 'Skills', key: 'skills' },
-  { href: '/#projects', label: '项目', en: 'Projects', key: 'projects' },
-  { href: '/#hobbies', label: '个人喜好', en: 'Hobbies', key: 'hobbies' },
-  { href: '/#contact', label: '联系我', en: 'Contact', key: 'contact' },
+  { href: '/projects/', label: '档案', en: 'Archive', key: 'projects' },
+  { href: '/about/', label: '关于', en: 'About', key: 'about' },
+  { href: '/uses/', label: '装备', en: 'Uses', key: 'uses' },
+  { href: '/links/', label: '友链', en: 'Links', key: 'links' },
 ];
 
 const path = Astro.url.pathname;
-const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : '';
+const activeKey =
+  ['blog', 'projects', 'about', 'uses', 'links'].find((k) =>
+    path.startsWith(`/${k === 'blog' ? 'blog' : k}`)
+  ) ?? '';
 ---
 
 <div id="sidebar-root">
@@ -31,6 +33,15 @@ const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : ''
 
   <aside class="sidebar-panel" id="sidebar-panel" aria-hidden="true" aria-label="站点导航">
     <p class="sidebar-label">Loky</p>
+
+    {/* 一级界面入口（紫色信号） */}
+    <a class="sec-home" href="/">
+      <span class="dot dot-primary" aria-hidden="true"></span>
+      <span class="sec-home-text">首页 · 一级界面</span>
+    </a>
+
+    <p class="sidebar-divider">二级界面</p>
+
     <nav>
       {
         navItems.map((item, i) => (
@@ -41,6 +52,7 @@ const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : ''
             data-key={item.key}
             aria-current={activeKey === item.key ? 'page' : undefined}
           >
+            <span class="link-dot" aria-hidden="true"></span>
             <span class="link-index">{String(i + 1).padStart(2, '0')}</span>
             <span class="link-text">
               {item.label}
@@ -163,10 +175,80 @@ const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : ''
     margin-bottom: 28px;
   }
 
+  /* —— 一级界面入口（紫色信号）—— */
+  .sec-home {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(140, 90, 255, 0.35);
+    border-radius: 10px;
+    background: rgba(90, 60, 180, 0.1);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.4s var(--ease-out);
+  }
+
+  .sec-home:hover {
+    transform: translateX(3px);
+    border-color: rgba(140, 90, 255, 0.7);
+    background: rgba(90, 60, 180, 0.18);
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 2px;
+  }
+
+  .dot-primary {
+    background: #8a6cf0;
+    box-shadow: 0 0 8px rgba(140, 90, 255, 0.7);
+  }
+
+  /* —— 二级界面分隔标注 —— */
+  .sidebar-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+  }
+
+  .sidebar-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
   .sidebar-panel nav {
     display: flex;
     flex-direction: column;
     flex: 1;
+  }
+
+  /* 每个二级入口的橙色信号点 */
+  .link-dot {
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 2px;
+    background: rgba(255, 138, 26, 0.4);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .sidebar-link:hover .link-dot,
+  .sidebar-link.active .link-dot {
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(255, 138, 26, 0.6);
   }
 
   .sidebar-link {
@@ -291,55 +373,4 @@ const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : ''
   };
 
   document.addEventListener('astro:page-load', setupSidebar);
-
-  // —— 滚动同步（scrollspy）：首页滚动到哪个面板，侧边栏就高亮哪一项 ——
-  const setActive = (key: string) => {
-    document.querySelectorAll('#sidebar-root .sidebar-link').forEach((a) => {
-      const on = (a as HTMLElement).dataset.key === key;
-      a.classList.toggle('active', on);
-      if (on) a.setAttribute('aria-current', 'page');
-      else a.removeAttribute('aria-current');
-    });
-  };
-
-  const initScrollSpy = () => {
-    if (location.pathname.startsWith('/blog')) {
-      setActive('blog');
-      return;
-    }
-    if (location.pathname !== '/') return;
-
-    const ids = ['hero', 'identity', 'skills', 'projects', 'hobbies', 'contact'];
-    const sections = ids
-      .map((id) => ({ id, el: document.getElementById(id) }))
-      .filter((s): s is { id: string; el: HTMLElement } => !!s.el);
-    if (!sections.length) return;
-
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const line = window.scrollY + window.innerHeight * 0.35;
-      let current = sections[0].id;
-      for (const s of sections) {
-        if (s.el.offsetTop <= line) current = s.id;
-      }
-      setActive(current === 'hero' ? 'home' : current);
-    };
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(() => {
-            update();
-            ticking = false;
-          });
-        }
-      },
-      { passive: true }
-    );
-    update();
-  };
-
-  document.addEventListener('astro:page-load', initScrollSpy);
 </script>

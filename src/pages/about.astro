@@ -1,0 +1,149 @@
+---
+import Base from '../layouts/Base.astro';
+import Emblem from '../components/Emblem.astro';
+---
+
+<Base
+  title="关于 · Loky"
+  description="关于 Loky — iOS 开发者的学习轨迹、正在做的事与未来的方向。"
+  secondary={{ label: '关于 · Loky', back: { href: '/', label: '返回首页' } }}
+>
+  <section class="panel about-head">
+    <div class="container">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> About · 关于</p>
+      <h1 class="panel-title reveal" style="--d:1">你好，我是 Loky</h1>
+      <p class="panel-desc reveal" style="--d:2">
+        一个把 iOS 做到手艺层面的开发者。相信"千磨万击还坚劲"——
+        难是常态，熬过难才是本事。
+      </p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="container">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Timeline · 轨迹</p>
+      <h2 class="panel-title reveal" style="--d:1">一路走来的几段路</h2>
+
+      <div class="timeline">
+        <div class="tl-item reveal">
+          <div class="tl-dot" aria-hidden="true"></div>
+          <div class="tl-body">
+            <h3 class="tl-title">初识代码</h3>
+            <p class="tl-text">从第一行 Hello World，到看不懂的报错，再到第一次跑通自己的 App——入坑的开始。</p>
+          </div>
+        </div>
+        <div class="tl-item reveal" style="--d:1">
+          <div class="tl-dot" aria-hidden="true"></div>
+          <div class="tl-body">
+            <h3 class="tl-title">扎根 Objective-C</h3>
+            <p class="tl-text">语法、内存管理、Block、Category——别人的"老古董"，我的地基。</p>
+          </div>
+        </div>
+        <div class="tl-item reveal" style="--d:2">
+          <div class="tl-dot" aria-hidden="true"></div>
+          <div class="tl-body">
+            <h3 class="tl-title">向底层深潜</h3>
+            <p class="tl-text">Runtime 消息转发、引用计数原理、Core Animation 渲染管线——知其然，更要知其所以然。</p>
+          </div>
+        </div>
+        <div class="tl-item reveal" style="--d:3">
+          <div class="tl-dot" aria-hidden="true"></div>
+          <div class="tl-body">
+            <h3 class="tl-title">触达 AI</h3>
+            <p class="tl-text">RAG、Agent、Python——为客户端的智能化储备弹药。</p>
+          </div>
+        </div>
+        <div class="tl-item reveal" style="--d:4">
+          <div class="tl-dot" aria-hidden="true"></div>
+          <div class="tl-body">
+            <h3 class="tl-title">现在 · 建了这个站</h3>
+            <p class="tl-text">把学到的东西摊开给别人看——这个网站本身就是最新的作品。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="container">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Now · 现在</p>
+      <h2 class="panel-title reveal" style="--d:1">此刻在做什么</h2>
+      <div class="now-grid">
+        <div class="card now-card reveal">
+          <div class="card-top"><span class="card-no">01</span><span class="card-line" aria-hidden="true" /></div>
+          <h3 class="card-title">打磨「凪」</h3>
+          <p class="card-text">与伙伴合作的呼吸冥想 App，Objective-C 与 SwiftUI 的双端实践。</p>
+        </div>
+        <div class="card now-card reveal" style="--d:1">
+          <div class="card-top"><span class="card-no">02</span><span class="card-line" aria-hidden="true" /></div>
+          <h3 class="card-title">写博客</h3>
+          <p class="card-text">把 Objective-C、Runtime 与 AI 折腾的学习过程写成文章。</p>
+        </div>
+        <div class="card now-card reveal" style="--d:2">
+          <div class="card-top"><span class="card-no">03</span><span class="card-line" aria-hidden="true" /></div>
+          <h3 class="card-title">持续基础建设</h3>
+          <p class="card-text">算法与计算机基础不断线，底层原理持续深挖。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about-head {
+    min-height: 46vh;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .timeline {
+    position: relative;
+    max-width: 720px;
+    padding-left: 26px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 8px;
+    bottom: 8px;
+    width: 1.5px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-2));
+    opacity: 0.55;
+  }
+
+  .tl-item {
+    position: relative;
+    padding-bottom: 34px;
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: -26px;
+    top: 7px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 10px rgba(255, 138, 26, 0.45);
+  }
+
+  .tl-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .tl-text {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+  }
+
+  .now-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+</style>

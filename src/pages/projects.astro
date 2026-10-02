@@ -1,0 +1,321 @@
+---
+import Base from '../layouts/Base.astro';
+import Emblem from '../components/Emblem.astro';
+---
+
+<Base
+  title="档案 · Loky"
+  description="Loky 的项目档案 — 凪、Spotify-Clone、RAG-Agent 的技术细节与开发过程。"
+  secondary={{ label: '档案 · 项目', back: { href: '/', label: '返回首页' } }}
+>
+  <section class="panel archive-head">
+    <div class="container">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Archive · 档案</p>
+      <h1 class="panel-title reveal" style="--d:1">项目档案</h1>
+      <p class="panel-desc reveal" style="--d:2">每个项目一份档案：它是什么、为什么做、走到了哪一步。</p>
+
+      {/* —— 凪 · Serenity：旗舰档案（合作项目，私有仓库，完整讲述）—— */}
+      <article class="dossier reveal" style="--d:3">
+        <div class="dossier-head">
+          <span class="dossier-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="64" height="64">
+              <defs>
+                <linearGradient id="nagi-g" x1="0" y1="0" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#8a6cf0" />
+                  <stop offset="1" stop-color="#241547" />
+                </linearGradient>
+              </defs>
+              <rect width="48" height="48" rx="11" fill="#0d0d0d" />
+              <rect x="3" y="3" width="42" height="42" rx="9" fill="url(#nagi-g)" />
+              <text
+                x="24"
+                y="32.5"
+                text-anchor="middle"
+                font-size="23"
+                font-weight="600"
+                fill="#fff"
+                font-family="'PingFang SC', 'Hiragino Sans GB', sans-serif"
+              >
+                凪
+              </text>
+            </svg>
+          </span>
+          <div class="dossier-titlebox">
+            <h2 class="dossier-name">凪 · Serenity</h2>
+            <p class="dossier-sub">iOS + watchOS 呼吸冥想应用 · 合作项目</p>
+            <div class="dossier-badges">
+              <span class="badge">Objective-C</span>
+              <span class="badge">UIKit</span>
+              <span class="badge">SwiftUI</span>
+              <span class="badge">WatchConnectivity</span>
+              <span class="badge badge-violet">私有仓库</span>
+            </div>
+          </div>
+        </div>
+        <div class="dossier-body">
+          <p>
+            「凪」是日语里"风停浪住"的意思——一款帮助呼吸与冥想的应用。
+            iPhone 端使用 Objective-C + UIKit，Watch 端使用 Swift + SwiftUI，
+            两端通过 WatchConnectivity 通信。
+          </p>
+          <p>
+            这是与伙伴 <a href="https://github.com/dustPyrotechnic" target="_blank" rel="noopener noreferrer">@dustPyrotechnic</a>
+            的合作项目，主仓库在其账户下（私有）。我主要负责 Objective-C 客户端的界面与工程实现，
+            顺带把 Watch 端的 SwiftUI 写成了可以独立运行的腕上应用。
+          </p>
+          <p class="dossier-status"><span class="status-dot"></span>开发中 — 双端通信闭环与冥想动画推进中</p>
+        </div>
+      </article>
+
+      {/* —— Spotify-Clone —— */}
+      <article class="dossier reveal">
+        <div class="dossier-head">
+          <span class="dossier-icon spotify" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="60" height="60">
+              <rect width="48" height="48" rx="11" fill="#0d0d0d" />
+              <circle cx="24" cy="24" r="17.5" fill="#1ed760" />
+              <path d="M13.5 20.5 C20 17.8 30 18.2 35.5 21.5" stroke="#0d0d0d" stroke-width="3.4" fill="none" stroke-linecap="round" />
+              <path d="M14.5 27 C20 24.8 28.5 25.2 33.8 28" stroke="#0d0d0d" stroke-width="3.2" fill="none" stroke-linecap="round" />
+              <path d="M15.5 33 C20 31.2 27 31.5 31.5 33.8" stroke="#0d0d0d" stroke-width="3" fill="none" stroke-linecap="round" />
+            </svg>
+          </span>
+          <div class="dossier-titlebox">
+            <h2 class="dossier-name">
+              <a href="https://github.com/Ribacha/Spotify-Clone-Objective-C" target="_blank" rel="noopener noreferrer">Spotify-Clone ↗</a>
+            </h2>
+            <p class="dossier-sub">iOS 客户端复刻 · 个人项目</p>
+            <div class="dossier-badges">
+              <span class="badge">Objective-C++</span>
+              <span class="badge">UIKit</span>
+              <span class="badge">Auto Layout</span>
+            </div>
+          </div>
+        </div>
+        <div class="dossier-body">
+          <p>
+            把 Spotify 的客户端界面与交互逐屏复刻一遍：首页排布、播放条、转场动效。
+            目的不是抄袭，而是借一个成熟产品练手大型 UI 工程的搭建思路——
+            组件怎么拆、约束怎么管、动效怎么不掉帧。
+          </p>
+          <p class="dossier-status"><span class="status-dot"></span>界面复刻推进中 — <a href="https://github.com/Ribacha/Spotify-Clone-Objective-C" target="_blank" rel="noopener noreferrer">查看仓库 ↗</a></p>
+        </div>
+      </article>
+
+      {/* —— RAG-Agent —— */}
+      <article class="dossier reveal">
+        <div class="dossier-head">
+          <span class="dossier-icon rag" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="60" height="60">
+              <rect width="48" height="48" rx="11" fill="#0d0d0d" />
+              <rect x="3" y="3" width="42" height="42" rx="9" fill="#171130" />
+              <circle cx="15" cy="16" r="4.2" fill="#ff8c1a" />
+              <circle cx="34" cy="13" r="3.4" fill="#b39dff" />
+              <circle cx="30" cy="34" r="4.6" fill="#ff8c1a" opacity="0.9" />
+              <path d="M17.5 18.5 L31 14.5 M33 16.5 L31.5 29.5 M16.5 18.5 L27 31.5" stroke="#6f5ab8" stroke-width="1.6" />
+            </svg>
+          </span>
+          <div class="dossier-titlebox">
+            <h2 class="dossier-name">
+              <a href="https://github.com/Ribacha/RAG-Agent" target="_blank" rel="noopener noreferrer">RAG-Agent ↗</a>
+            </h2>
+            <p class="dossier-sub">检索增强生成 + 智能体 · 学习项目</p>
+            <div class="dossier-badges">
+              <span class="badge">Python</span>
+              <span class="badge">RAG</span>
+              <span class="badge">Agent</span>
+            </div>
+          </div>
+        </div>
+        <div class="dossier-body">
+          <p>
+            从零搭一条 RAG 流水线（切分 → 向量化 → 检索 → 生成），
+            再往上叠 Agent 的编排能力。终局目标：把这套能力带进 iOS 应用。
+          </p>
+          <p class="dossier-status"><span class="status-dot"></span>推进中 — <a href="https://github.com/Ribacha/RAG-Agent" target="_blank" rel="noopener noreferrer">查看仓库 ↗</a></p>
+        </div>
+      </article>
+
+      {/* —— 早期/碎片项目 —— */}
+      <div class="minors reveal">
+        <h3 class="minors-title">更早的练习与碎片</h3>
+        <a class="minor" href="https://github.com/Ribacha/oc-study" target="_blank" rel="noopener noreferrer">
+          <span class="minor-name">oc-study</span>
+          <span class="minor-desc">Objective-C 学习笔记，从语法到运行时</span>
+        </a>
+        <a class="minor" href="https://github.com/Ribacha/kkxx" target="_blank" rel="noopener noreferrer">
+          <span class="minor-name">KKxx</span>
+          <span class="minor-desc">小实验与灵感碎片</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .archive-head {
+    min-height: 60vh;
+  }
+
+  .dossier {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+    padding: 34px 32px 30px;
+    margin-bottom: 26px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.4s ease, transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out);
+  }
+
+  .dossier:hover {
+    border-color: rgba(255, 138, 26, 0.4);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .dossier-head {
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .dossier-icon :global(svg),
+  .dossier-icon :global(img) {
+    border-radius: 14px;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
+  }
+
+  .dossier-name {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+
+  .dossier-name a {
+    color: var(--text);
+    transition: color 0.3s ease;
+  }
+
+  .dossier-name a:hover {
+    color: var(--accent);
+  }
+
+  .dossier-sub {
+    font-size: 13.5px;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+  }
+
+  .dossier-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 11px;
+    background: var(--bg-raised);
+  }
+
+  .badge-violet {
+    color: var(--accent-2);
+    border-color: rgba(179, 157, 255, 0.4);
+  }
+
+  .dossier-body {
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+    max-width: 760px;
+  }
+
+  .dossier-body p {
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--text-secondary);
+    margin: 0.6em 0;
+  }
+
+  .dossier-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .dossier-status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 14px;
+  }
+
+  .dossier-status a {
+    color: var(--accent);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(255, 138, 26, 0.7);
+    animation: status-breathe 2.4s ease-in-out infinite;
+  }
+
+  @keyframes status-breathe {
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  .minors {
+    margin-top: 44px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .minors-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--text-tertiary);
+    margin-bottom: 14px;
+  }
+
+  .minor {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--border);
+    transition: padding-left 0.3s var(--ease-out);
+  }
+
+  .minor:hover {
+    padding-left: 12px;
+  }
+
+  .minor-name {
+    font-weight: 650;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .minor:hover .minor-name {
+    color: var(--accent);
+  }
+
+  .minor-desc {
+    font-size: 13.5px;
+    color: var(--text-tertiary);
+  }
+</style>
