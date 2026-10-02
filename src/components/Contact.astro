@@ -1,0 +1,106 @@
+---
+// 联系面板 + 页脚
+---
+
+<section id="contact" class="panel">
+  <div class="container contact-wrap">
+    <p class="panel-eyebrow reveal">Contact · 联系我</p>
+    <h2 class="panel-title reveal" style="--d:1">来找我玩</h2>
+    <p class="panel-desc reveal" style="--d:2">
+      有趣的项目、iOS 与 AI 的交流，或者只是打个招呼，都欢迎。
+    </p>
+    <div class="contact-actions reveal" style="--d:3">
+      <a
+        class="btn btn-primary"
+        href="https://github.com/Ribacha"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub @Ribacha
+      </a>
+      <a class="btn btn-ghost" href="mailto:out13572034101@qq.com">写封邮件</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p>© {new Date().getFullYear()} KKxxLoky · kkxxloky.com</p>
+    <p>
+      Built with <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>
+      · Hosted on
+      <a href="https://pages.github.com" target="_blank" rel="noopener noreferrer">GitHub Pages</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .contact-wrap {
+    text-align: center;
+  }
+
+  .contact-wrap .panel-desc {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .contact-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .btn {
+    padding: 15px 36px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out),
+      background 0.3s ease, color 0.3s ease;
+  }
+
+  .btn-primary {
+    background: var(--text);
+    color: var(--bg-elevated);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text);
+  }
+
+  .btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding: 36px 0 44px;
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  .footer-inner a {
+    color: var(--text-secondary);
+  }
+
+  .footer-inner a:hover {
+    color: var(--accent);
+  }
+</style>

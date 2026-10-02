@@ -1,0 +1,61 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+import Sidebar from '../components/Sidebar.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'KKxxLoky · 个人主页',
+  description = 'Loky 的个人网站 — iOS 开发者、计算机科学爱好者、AI 学习中。',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <ViewTransitions />
+    <title>{title}</title>
+  </head>
+  <body>
+    <Sidebar />
+    <main>
+      <slot />
+    </main>
+
+    <script>
+      // 滚动 reveal：进入视口的元素依次浮现（Apple 风格错峰）
+      const initReveal = () => {
+        const els = document.querySelectorAll('.reveal:not(.in-view)');
+        if (!('IntersectionObserver' in window)) {
+          els.forEach((el) => el.classList.add('in-view'));
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.15, rootMargin: '0px 0px -48px 0px' }
+        );
+        els.forEach((el) => io.observe(el));
+      };
+      document.addEventListener('astro:page-load', initReveal);
+    </script>
+  </body>
+</html>

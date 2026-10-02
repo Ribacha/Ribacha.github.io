@@ -1,0 +1,268 @@
+---
+// 侧边栏：右上角按钮唤出，毛玻璃遮罩 + 弹性滑入
+// 分类导航锚点对应首页各面板；Esc / 点击遮罩 / 点击链接均可关闭
+const navItems = [
+  { href: '#hero', label: '首页', en: 'Home' },
+  { href: '#identity', label: '个人身份', en: 'Identity' },
+  { href: '#skills', label: '技能', en: 'Skills' },
+  { href: '#projects', label: '项目', en: 'Projects' },
+  { href: '#hobbies', label: '个人喜好', en: 'Hobbies' },
+  { href: '#contact', label: '联系我', en: 'Contact' },
+];
+---
+
+<div id="sidebar-root">
+  <button
+    class="sidebar-toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="sidebar-panel"
+    aria-label="打开菜单"
+  >
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <div class="sidebar-backdrop" aria-hidden="true"></div>
+
+  <aside class="sidebar-panel" id="sidebar-panel" aria-hidden="true" aria-label="站点导航">
+    <p class="sidebar-label">KKxxLoky</p>
+    <nav>
+      {
+        navItems.map((item, i) => (
+          <a class="sidebar-link" href={item.href} style={`--i:${i}`}>
+            <span class="link-index">{String(i + 1).padStart(2, '0')}</span>
+            <span class="link-text">
+              {item.label}
+              <small>{item.en}</small>
+            </span>
+            <span class="link-arrow" aria-hidden="true">→</span>
+          </a>
+        ))
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a href="https://github.com/Ribacha" target="_blank" rel="noopener noreferrer">
+        GitHub @Ribacha ↗
+      </a>
+    </div>
+  </aside>
+</div>
+
+<style>
+  /* —— 唤出按钮（右上角固定）—— */
+  .sidebar-toggle {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    z-index: 60;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.65);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: transform 0.4s var(--ease-out), background 0.3s ease;
+  }
+
+  .sidebar-toggle:hover {
+    transform: scale(1.06);
+  }
+
+  .sidebar-toggle .bar {
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--text);
+    transition: transform 0.45s var(--ease-spring), opacity 0.3s ease;
+  }
+
+  /* 打开状态：两条横线交叉成 X */
+  #sidebar-root.open .sidebar-toggle .bar:nth-child(1) {
+    transform: translateY(4px) rotate(45deg);
+  }
+  #sidebar-root.open .sidebar-toggle .bar:nth-child(2) {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+
+  /* —— 毛玻璃遮罩 —— */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(0, 0, 0, 0.32);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s var(--ease-out), visibility 0s linear 0.5s;
+  }
+
+  #sidebar-root.open .sidebar-backdrop {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s var(--ease-out);
+  }
+
+  /* —— 侧边栏面板（右侧弹性滑入）—— */
+  .sidebar-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 50;
+    width: min(360px, 86vw);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 96px 36px 36px;
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    backdrop-filter: blur(28px) saturate(1.6);
+    border-left: 1px solid var(--border);
+    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.12);
+    transform: translateX(102%);
+    visibility: hidden;
+    transition:
+      transform 0.65s var(--ease-spring),
+      visibility 0s linear 0.65s;
+  }
+
+  #sidebar-root.open .sidebar-panel {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.65s var(--ease-spring);
+  }
+
+  .sidebar-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 28px;
+  }
+
+  .sidebar-panel nav {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 15px 4px;
+    border-bottom: 1px solid var(--border);
+    /* 逐条错峰浮现 */
+    opacity: 0;
+    transform: translateX(36px);
+    transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+    transition-delay: 0s;
+  }
+
+  #sidebar-root.open .sidebar-link {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.12s + var(--i) * 60ms);
+  }
+
+  .link-index {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .link-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .link-text small {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .link-arrow {
+    font-size: 16px;
+    color: var(--text-tertiary);
+    transition: transform 0.35s var(--ease-out), color 0.35s ease;
+  }
+
+  .sidebar-link:hover .link-arrow {
+    transform: translateX(6px);
+    color: var(--accent);
+  }
+
+  .sidebar-footer {
+    padding-top: 24px;
+    font-size: 14px;
+  }
+
+  .sidebar-footer a {
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+  }
+
+  .sidebar-footer a:hover {
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  // 模块级保存 close 引用，保证 Esc 在任意页面状态都能关掉当前侧边栏
+  let currentClose: (() => void) | null = null;
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && currentClose) currentClose();
+  });
+
+  const setupSidebar = () => {
+    const root = document.getElementById('sidebar-root');
+    const toggle = root?.querySelector<HTMLButtonElement>('.sidebar-toggle');
+    const backdrop = root?.querySelector<HTMLElement>('.sidebar-backdrop');
+    const panel = root?.querySelector<HTMLElement>('.sidebar-panel');
+    if (!root || !toggle || !backdrop || !panel || toggle.dataset.bound) return;
+
+    const open = () => {
+      root.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', '关闭菜单');
+      panel.setAttribute('aria-hidden', 'false');
+      document.documentElement.classList.add('sidebar-open');
+    };
+    const close = () => {
+      root.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', '打开菜单');
+      panel.setAttribute('aria-hidden', 'true');
+      document.documentElement.classList.remove('sidebar-open');
+    };
+
+    currentClose = close;
+    toggle.dataset.bound = '1';
+    toggle.addEventListener('click', () => (root.classList.contains('open') ? close() : open()));
+    backdrop.addEventListener('click', close);
+    panel.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', () => close());
+    });
+  };
+
+  document.addEventListener('astro:page-load', setupSidebar);
+</script>

@@ -1,0 +1,44 @@
+---
+// 个人喜好面板
+const hobbies = [
+  {
+    icon: '🕷️',
+    title: '蜘蛛侠',
+    text: '从托比到荷兰弟，全系列刷了不知道多少遍。JJK：Jump, Jump, and King (of New York)。',
+  },
+  {
+    icon: '☕️',
+    title: '咖啡',
+    text: '永远差一杯。写代码的燃料，灵感的中转站。',
+  },
+  {
+    icon: '🧰',
+    title: '折腾工具',
+    text: '键盘、快捷键、效率软件与各种轮子——工具折腾到极致，也是一种浪漫。',
+  },
+  {
+    icon: '🎬',
+    title: '电影与音乐',
+    text: '写代码时来点 Lo-fi，休息时来部片子。Spotify 界面都复刻了，听歌当然也要有仪式感。',
+  },
+];
+---
+
+<section id="hobbies" class="panel">
+  <div class="container">
+    <p class="panel-eyebrow reveal">Hobbies · 个人喜好</p>
+    <h2 class="panel-title reveal" style="--d:1">代码之外</h2>
+    <p class="panel-desc reveal" style="--d:2">不写代码的时候，大概在干这些事。</p>
+    <div class="card-grid">
+      {
+        hobbies.map((h, i) => (
+          <article class="card reveal" style={`--d:${i + 1}`}>
+            <div class="card-icon" aria-hidden="true">{h.icon}</div>
+            <h3 class="card-title">{h.title}</h3>
+            <p class="card-text">{h.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

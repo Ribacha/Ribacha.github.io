@@ -1,0 +1,120 @@
+---
+// 项目面板：展示 GitHub 上的代表项目
+const projects = [
+  {
+    name: 'RAG-Agent',
+    desc: 'RAG（检索增强生成）与 Agent 的学习实践项目，从零搭建自己的知识库问答。',
+    lang: 'Python',
+    color: '#3572A5',
+  },
+  {
+    name: 'Spotify-Clone-Objective-C',
+    desc: '用 Objective-C++ 复刻 Spotify 客户端界面与交互，练手大型 UI 工程。',
+    lang: 'Objective-C++',
+    color: '#6866FB',
+  },
+  {
+    name: 'oc-study',
+    desc: 'Objective-C 学习笔记与代码练习，记录从基础到运行时机制的理解。',
+    lang: 'Objective-C',
+    color: '#438EFF',
+  },
+  {
+    name: 'KKxx',
+    desc: '小实验与灵感碎片仓库，什么都可能出现在这里。',
+    lang: 'Playground',
+    color: '#A1A1A6',
+  },
+];
+---
+
+<section id="projects" class="panel">
+  <div class="container">
+    <p class="panel-eyebrow reveal">Projects · 项目</p>
+    <h2 class="panel-title reveal" style="--d:1">做过的东西</h2>
+    <p class="panel-desc reveal" style="--d:2">
+      全部开源在 GitHub 上，点击卡片可以直接查看源码。
+    </p>
+    <div class="card-grid">
+      {
+        projects.map((p, i) => (
+          <a
+            class="card project-card reveal"
+            style={`--d:${i + 1}`}
+            href={`https://github.com/Ribacha/${p.name}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div class="project-head">
+              <h3 class="card-title">{p.name}</h3>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </div>
+            <p class="card-text">{p.desc}</p>
+            <p class="project-lang">
+              <span class="lang-dot" style={`background:${p.color}`} aria-hidden="true" />
+              {p.lang}
+            </p>
+          </a>
+        ))
+      }
+    </div>
+    <p class="more reveal" style="--d:3">
+      <a href="https://github.com/Ribacha?tab=repositories" target="_blank" rel="noopener noreferrer">
+        在 GitHub 查看全部仓库 →
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .project-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .project-arrow {
+    font-size: 18px;
+    color: var(--text-tertiary);
+    transition: transform 0.35s var(--ease-out), color 0.35s ease;
+  }
+
+  .project-card:hover .project-arrow {
+    transform: translate(3px, -3px);
+    color: var(--accent);
+  }
+
+  .project-lang {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 550;
+    color: var(--text-secondary);
+  }
+
+  .lang-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .more {
+    margin-top: 36px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .more a {
+    color: var(--accent);
+  }
+</style>
