@@ -19,7 +19,7 @@ const posts = (await getCollection('blog', (e) => e.data.category === category))
 );
 ---
 
-<Base title={`${meta.name} · Loky 的博客`} description={meta.desc}>
+<Base title={`${meta.name} · Loky 的博客`} description={meta.desc} secondary={`博客 · ${meta.name}`}>
   <section class="panel list-head">
     <div class="container">
       <nav class="crumb reveal">

@@ -1,15 +1,18 @@
 ---
 // 侧边栏：右上角按钮唤出，毛玻璃遮罩 + 弹性滑入
-// 分类导航锚点对应首页各面板；Esc / 点击遮罩 / 点击链接均可关闭
+// 博客为最高优先级入口（排第一）；当前页面对应的分类会高亮
 const navItems = [
-  { href: '/#hero', label: '首页', en: 'Home' },
-  { href: '/#identity', label: '个人身份', en: 'Identity' },
-  { href: '/#skills', label: '技能', en: 'Skills' },
-  { href: '/#projects', label: '项目', en: 'Projects' },
-  { href: '/#hobbies', label: '个人喜好', en: 'Hobbies' },
-  { href: '/blog/', label: '博客', en: 'Blog' },
-  { href: '/#contact', label: '联系我', en: 'Contact' },
+  { href: '/blog/', label: '博客', en: 'Blog', key: 'blog' },
+  { href: '/', label: '首页', en: 'Home', key: 'home' },
+  { href: '/#identity', label: '个人身份', en: 'Identity', key: 'identity' },
+  { href: '/#skills', label: '技能', en: 'Skills', key: 'skills' },
+  { href: '/#projects', label: '项目', en: 'Projects', key: 'projects' },
+  { href: '/#hobbies', label: '个人喜好', en: 'Hobbies', key: 'hobbies' },
+  { href: '/#contact', label: '联系我', en: 'Contact', key: 'contact' },
 ];
+
+const path = Astro.url.pathname;
+const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : '';
 ---
 
 <div id="sidebar-root">
@@ -31,7 +34,12 @@ const navItems = [
     <nav>
       {
         navItems.map((item, i) => (
-          <a class="sidebar-link" href={item.href} style={`--i:${i}`}>
+          <a
+            class:list={['sidebar-link', { active: activeKey === item.key }]}
+            href={item.href}
+            style={`--i:${i}`}
+            aria-current={activeKey === item.key ? 'page' : undefined}
+          >
             <span class="link-index">{String(i + 1).padStart(2, '0')}</span>
             <span class="link-text">
               {item.label}
@@ -212,6 +220,20 @@ const navItems = [
   .sidebar-link:hover .link-arrow {
     transform: translateX(6px);
     color: var(--accent);
+  }
+
+  /* 当前页面对应的分类：EVA 橙高亮 */
+  .sidebar-link.active {
+    border-bottom-color: rgba(255, 138, 26, 0.55);
+  }
+
+  .sidebar-link.active .link-text {
+    color: var(--accent);
+  }
+
+  .sidebar-link.active .link-arrow {
+    color: var(--accent);
+    transform: translateX(4px);
   }
 
   .sidebar-footer {
