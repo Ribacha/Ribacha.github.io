@@ -1,0 +1,144 @@
+---
+// 侧边小字导航（仅首页显示）：滚动到哪个面板，对应的小字就亮起；
+// 点击小字跳转到对应面板。EVA 风：小字 + 刻度线，橙色 = 当前位置。
+// 深紫细色带（一级界面信号）仍在顶部。
+const items = [
+  { href: '/#hero', label: '首页', key: 'home' },
+  { href: '/#identity', label: '身份', key: 'identity' },
+  { href: '/#projects', label: '项目', key: 'projects' },
+  { href: '/#skills', label: '技能', key: 'skills' },
+  { href: '/#hobbies', label: '喜好', key: 'hobbies' },
+  { href: '/#contact', label: '联系', key: 'contact' },
+];
+---
+
+<aside class="section-rail" aria-label="页面位置导航">
+  {
+    items.map((it) => (
+      <a class="rail-item" href={it.href} data-key={it.key}>
+        <i class="tick" aria-hidden="true" />
+        <span class="rail-label">{it.label}</span>
+      </a>
+    ))
+  }
+</aside>
+
+<style>
+  .section-rail {
+    position: fixed;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .rail-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--text-tertiary);
+    opacity: 0.72;
+    transition: color 0.35s ease, opacity 0.35s ease;
+  }
+
+  .tick {
+    width: 13px;
+    height: 1.5px;
+    flex: none;
+    background: currentColor;
+    opacity: 0.55;
+    transition: width 0.35s var(--ease-out), background 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+
+  .rail-label {
+    font-size: 11px;
+    font-weight: 550;
+    letter-spacing: 0.28em;
+    white-space: nowrap;
+  }
+
+  .rail-item:hover {
+    color: var(--text-secondary);
+    opacity: 1;
+  }
+
+  /* 当前位置：橙色点亮，刻度线伸长并发光 */
+  .rail-item.active {
+    color: var(--accent);
+    opacity: 1;
+  }
+
+  .rail-item.active .tick {
+    width: 28px;
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(255, 138, 26, 0.55);
+  }
+
+  .rail-item.active .rail-label {
+    text-shadow: 0 0 14px rgba(255, 138, 26, 0.45);
+  }
+
+  @media (max-width: 1100px) {
+    .section-rail {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // scrollspy：与侧边栏共享同一套高亮逻辑——
+  // 首页滚动到哪个面板，rail 小字和侧边栏对应项一起亮起
+  const initRail = () => {
+    if (location.pathname !== '/') return;
+    const items = [...document.querySelectorAll('.section-rail .rail-item')];
+    if (!items.length || items[0].dataset.spyBound) return;
+    items.forEach((el) => (el.dataset.spyBound = '1'));
+
+    const ids = ['hero', 'identity', 'projects', 'skills', 'hobbies', 'contact'];
+    const sections = ids
+      .map((id) => ({ id, key: id === 'hero' ? 'home' : id, el: document.getElementById(id) }))
+      .filter((s) => s.el);
+    if (!sections.length) return;
+
+    const setActive = (key: string) => {
+      items.forEach((el) => el.classList.toggle('active', el.dataset.key === key));
+      document.querySelectorAll('#sidebar-root .sidebar-link').forEach((a) => {
+        const on = (a as HTMLElement).dataset.key === key;
+        a.classList.toggle('active', on);
+        if (on) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+    };
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const line = window.scrollY + window.innerHeight * 0.35;
+      let current = sections[0].key;
+      for (const s of sections) {
+        if (s.el.offsetTop <= line) current = s.key;
+      }
+      setActive(current);
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            update();
+            ticking = false;
+          });
+        }
+      },
+      { passive: true }
+    );
+    update();
+  };
+
+  document.addEventListener('astro:page-load', initRail);
+</script>
