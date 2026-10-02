@@ -1,10 +1,11 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import LokyMark from './LokyMark.astro';
+import '@fontsource/unifrakturcook/700.css';
 
-// 照片墙：倾斜的海平面（EVA 深紫），立方体如海浪一波接一波
-// 沿斜 Z 轴"抽动"立起再落回，12 个虚拟点位随机占 4-5 个并轮换
+// 照片墙：倾斜海平面上的哥特 LOKY
+// 每张图片由一个线条勾勒的立方体托架从网格面上推起，
+// 海浪一波接一波沿斜 Z 轴推进，网格平面恒在
 const mods = import.meta.glob<{ default: ImageMetadata }>('../assets/wall/*.jpg', {
   eager: true,
 });
@@ -51,9 +52,10 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     ))
   }
 
-  {/* —— 倾斜的海平面：立方体波浪 —— */}
+  {/* —— 倾斜海平面：恒在网格 + 立方体托架海浪 —— */}
   <div class="wall-tilt">
     <div class="wall-plane">
+      <div class="grid-surface" aria-hidden="true"></div>
       <div class="wall-grid" aria-hidden="true">
         {Array.from({ length: 12 }).map(() => <span class="slot" />)}
       </div>
@@ -61,6 +63,11 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
         {
           initialSlots.map((slot, i) => (
             <div class="cube-pos" data-slot={slot}>
+              <div class="pedestal" aria-hidden="true">
+                <div class="p-face p-front" />
+                <div class="p-face p-side" />
+                <div class="p-face p-bottom" />
+              </div>
               <div class="cube" data-img={i}>
                 <div class="face face-top" />
                 <div class="face face-right" />
@@ -86,10 +93,11 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
   <div class="wall-haze" aria-hidden="true"></div>
   <script type="application/json" data-wall-data set:html={wallData} />
 
-  {/* —— LOKY：贴在过渡带上方，不浮动 —— */}
+  {/* —— 哥特 LOKY：贴在雾带上方，不浮动 —— */}
   <div class="container hero-main">
     <h1 class="hero-title" aria-label="Loky">
-      <LokyMark />
+      <span class="loky-gothic">Loky</span>
+      <span class="loky-cursor" aria-hidden="true"></span>
     </h1>
   </div>
 
@@ -166,7 +174,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
   }
 
   /* ============================================================
-     海平面：透视 + 倾斜的墙面，立方体沿斜 Z 轴抽动
+     海平面：透视 + 倾斜墙面，恒在网格，立方体托架
      ============================================================ */
   .wall-tilt {
     position: relative;
@@ -183,7 +191,23 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     transform-style: preserve-3d;
   }
 
+  /* 恒在的网格面：立方体从这张“海面网格”上被推起 */
+  .grid-surface {
+    position: absolute;
+    inset: -34px -40px;
+    border: 1px solid rgba(190, 160, 255, 0.3);
+    background-image:
+      linear-gradient(rgba(190, 160, 255, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(190, 160, 255, 0.16) 1px, transparent 1px);
+    background-size: 164px 164px;
+    background-position: center;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 52%, transparent 98%);
+    mask-image: radial-gradient(ellipse at center, #000 52%, transparent 98%);
+  }
+
   .wall-grid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 24px;
@@ -191,6 +215,9 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
 
   .slot {
     aspect-ratio: 1;
+    /* 每个点位的格线恒在：立方体从这里被推起 */
+    border: 1px solid rgba(190, 160, 255, 0.22);
+    border-radius: 6px;
   }
 
   .cubes {
@@ -210,6 +237,54 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
 
   .cubes[data-ready] .cube-pos {
     opacity: 1;
+  }
+
+  /* —— 立方体托架：线条恒在的支撑立方体 —— */
+  .pedestal {
+    position: absolute;
+    top: 100%;
+    left: 7%;
+    right: 7%;
+    height: 64px;
+    transform-style: preserve-3d;
+  }
+
+  .p-face {
+    position: absolute;
+    background: linear-gradient(rgba(30, 16, 54, 0.28), rgba(14, 7, 30, 0.5));
+  }
+
+  /* 托架前面：始终可见的立方体线条 */
+  .p-front {
+    inset: 0;
+    border: 1.5px solid rgba(200, 170, 255, 0.6);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: inset 0 -18px 24px rgba(10, 4, 30, 0.35);
+  }
+
+  /* 托架右侧面 */
+  .p-side {
+    top: 0;
+    height: 100%;
+    width: 26px;
+    left: 100%;
+    transform-origin: 0% 50%;
+    transform: rotateY(90deg);
+    border: 1.5px solid rgba(200, 170, 255, 0.4);
+    background: linear-gradient(rgba(24, 12, 46, 0.4), rgba(10, 5, 24, 0.6));
+  }
+
+  /* 托架底面（贴网格） */
+  .p-bottom {
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 26px;
+    transform-origin: 50% 0%;
+    transform: rotateX(-90deg);
+    border: 1.5px solid rgba(200, 170, 255, 0.35);
+    background: rgba(10, 5, 24, 0.55);
   }
 
   .cube {
@@ -319,26 +394,49 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
   }
 
   /* ============================================================
-     LOKY：贴在雾带上方（无浮动），右下角为信息区
+     哥特 LOKY：贴在雾带上方（无浮动），右下角为信息区
      ============================================================ */
   .hero-main {
     position: relative;
     z-index: 10;
     text-align: center;
-    margin-top: -30px;
+    margin-top: -34px;
   }
 
   .hero-title {
-    line-height: 0;
+    line-height: 0.9;
     animation: rise-in 0.9s var(--ease-out) both;
   }
 
-  /* 字标 SVG 在子组件内部，需用 :global 穿透作用域 */
-  .hero-title :global(svg.loky-mark) {
-    width: clamp(270px, 40vw, 430px);
-    height: auto;
-    filter: drop-shadow(0 0 36px rgba(140, 100, 255, 0.45))
-      drop-shadow(0 18px 46px rgba(10, 4, 30, 0.6));
+  /* 哥特字：紫色渐变金属字 */
+  .loky-gothic {
+    font-family: 'UnifrakturCook', 'UnifrakturMaguntia', serif;
+    font-weight: 700;
+    font-size: clamp(110px, 16vw, 190px);
+    line-height: 1;
+    background: linear-gradient(180deg, #cdb9ff 0%, #7a5cff 46%, #37226e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(200, 175, 255, 0.32);
+    filter: drop-shadow(0 0 30px rgba(140, 100, 255, 0.45))
+      drop-shadow(0 18px 44px rgba(10, 4, 30, 0.6));
+  }
+
+  /* 终端光标：会闪烁 */
+  .loky-cursor {
+    display: inline-block;
+    width: 0.16em;
+    height: 0.14em;
+    margin-left: 0.1em;
+    background: #ff8c1a;
+    animation: cursor-blink 1.3s steps(2, start) infinite;
+  }
+
+  @keyframes cursor-blink {
+    50% {
+      opacity: 0;
+    }
   }
 
   @keyframes rise-in {
@@ -377,7 +475,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     font-family: var(--font-serif);
     font-size: clamp(13px, 1.6vw, 15.5px);
     letter-spacing: 0.08em;
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
   }
 
   .hero-cta {
@@ -414,6 +512,10 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
       grid-template-columns: repeat(3, 1fr);
       gap: 18px;
     }
+    .grid-surface {
+      inset: -26px -30px;
+      background-size: 130px 130px;
+    }
   }
 
   /* 无 JS 环境退化为静态网格 */
@@ -435,6 +537,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     .cube {
       transform: none !important;
     }
+    .pedestal,
     .face-top,
     .face-right {
       display: none;
@@ -444,10 +547,9 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
 
 <script>
   // 海洋波浪：波峰从左向右一波接一波推进
-  // - 相位只由「点位水平位置 - 时间」决定，所有立方体共享同一个波，
-  //   不再随机各自起伏；波峰过境时立方体沿斜 Z 轴快速"抽动"立起
-  // - 墙面整体 rotateX 倾斜成海平面，Z 轴即斜向插向观者
-  // - 立方体姿态恒定（补偿墙面倾角后微微朝向观者），高级、克制
+  // - 相位只由「点位水平位置 - 时间」决定，所有立方体共享同一个波
+  // - 波峰过境时立方体沿斜 Z 轴快速"抽动"立起；托架（线条立方体）
+  //   随之向下伸展，始终连接网格面——图片是被立方体从网格上推上去的
   const initWaveWall = () => {
     const layer = document.querySelector('[data-wave-wall]');
     const dataEl = document.querySelector('[data-wall-data]');
@@ -470,6 +572,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     const st = cubes.map((el, i) => ({
       el,
       pos: el.closest('.cube-pos'),
+      ped: el.closest('.cube-pos').querySelector('.pedestal'),
       shadow: el.closest('.cube-pos').querySelector('.cube-shadow'),
       slot: +el.closest('.cube-pos').dataset.slot,
       img: +el.dataset.img,
@@ -502,7 +605,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     const place = () => {
       st.forEach((s) => {
         const cell = slots[s.slot];
-        s.w = cell.offsetWidth * 0.9;
+        s.w = cell.offsetWidth * 0.86;
         s.x = cell.offsetLeft + cell.offsetWidth / 2;
         s.y = cell.offsetTop + cell.offsetHeight / 2;
         s.xn = plane.clientWidth > 0 ? s.x / plane.clientWidth : 0;
@@ -553,14 +656,15 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     const Z_AMP = 200; // 浪高（px，沿斜 Z 轴）
     const WAVE_T = 2600; // 一个波推进的周期（ms）
     const WAVE_K = 2.1; // 墙面同屏可见的波数
+    const PED_BASE = 56; // 托架基础高度
     const t0 = performance.now();
     const tick = (now) => {
       const t = now - t0;
       for (const s of st) {
         const ph = (s.xn * WAVE_K - t / WAVE_T) * Math.PI + s.j;
         let wave = Math.sin(ph); // -1..1
-        // 尖峰化：波形变窄，波峰过境时快速抽动立起，随后落回海面
-        wave = Math.sign(wave) * Math.pow(Math.abs(wave), 2.4);
+        // 尖峰化：波峰过境时快速抽动立起，随后落回海面
+        wave = Math.sign(wave) * Math.pow(Math.abs(wave), 2);
         const k = Math.max(0, wave); // 0 海面 .. 1 浪尖
         const z = k * Z_AMP;
         s.cx += (s.tx - s.cx) * 0.12;
@@ -571,6 +675,8 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
         s.pos.style.zIndex = String(Math.round(300 + z));
         s.el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
         s.el.style.opacity = (0.72 + k * 0.28).toFixed(3);
+        // 托架随抬升向下伸展，始终保持与网格面相连
+        if (s.ped) s.ped.style.height = `${PED_BASE + z * 0.42}px`;
         if (s.shadow) {
           s.shadow.style.opacity = (0.2 + k * 0.4).toFixed(3);
           s.shadow.style.transform = `scaleX(${(0.72 + k * 0.5).toFixed(3)})`;
