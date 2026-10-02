@@ -25,7 +25,13 @@ const backHref = `/blog/${entry.data.category}/`;
 <Base
   title={`${entry.data.title} · Loky 的博客`}
   description={entry.data.description}
-  secondary={`博客 · ${categoryMeta?.name ?? entry.data.category} · 正文`}
+  secondary={{
+    label: `博客 · ${categoryMeta?.name ?? entry.data.category} · 正文`,
+    back: {
+      href: `/blog/${entry.data.category}/`,
+      label: `返回${categoryMeta?.name ?? '列表'}`,
+    },
+  }}
 >
   <article class="panel post-head">
     <div class="container">

@@ -6,15 +6,15 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
-  /** 传入即为二级界面：值为界面标签（如 "博客 · 分类"），顶部会显示常驻提示条 */
-  secondary?: string;
+  /** 传入即为二级界面：label 为界面标签；back 指定返回的上级（默认返回首页） */
+  secondary?: {
+    label: string;
+    back?: { href: string; label: string };
+  };
 }
 
-const {
-  title = 'Loky · 个人主页',
-  description = 'Loky 的个人网站 — iOS 开发者，用 Objective-C 与 UIKit 打磨手艺。',
-  secondary,
-} = Astro.props;
+const { title = 'Loky · 个人主页', description = 'Loky 的个人网站 — iOS 开发者，用 Objective-C 与 UIKit 打磨手艺。', secondary } = Astro.props;
+const back = secondary?.back ?? { href: '/', label: '返回首页' };
 ---
 
 <!doctype html>
@@ -36,9 +36,9 @@ const {
       secondary ? (
         <div class="secondary-bar">
           <span class="sec-dot" aria-hidden="true" />
-          <span class="sec-label">{secondary}</span>
-          <a class="sec-back" href="/">
-            <span aria-hidden="true">←</span> 返回首页
+          <span class="sec-label">{secondary.label}</span>
+          <a class="sec-back" href={back.href}>
+            <span aria-hidden="true">←</span> {back.label}
           </a>
         </div>
       ) : (
