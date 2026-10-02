@@ -3,7 +3,8 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import LokyMark from './LokyMark.astro';
 
-// 照片墙：PlayStation 游戏墙式的浮游方块（Astro 资产管线自动压缩转 webp）
+// 照片墙：12 个虚拟点位（上 6 下 6），任意时刻随机占据 4-5 个，
+// 立方体随波浪起伏漂浮，定期轮换位置与图片；下方渐变过渡，LOKY 浮于其上
 const mods = import.meta.glob<{ default: ImageMetadata }>('../assets/wall/*.jpg', {
   eager: true,
 });
@@ -21,7 +22,15 @@ const tiles = [
   { file: '10-megalo-red.jpg', caption: 'MEGALO BOX', alt: 'MEGALO BOX：红色海报艺术' },
 ].map((t) => ({ ...t, src: mods[`../assets/wall/${t.file}`].default }));
 
-// 花瓣：致敬「烙印战士」第一张图的光中花瓣，参数由索引确定
+// 初始占据的点位（在 12 格中呈之字分布，起始即为波浪形）
+const initialSlots = [1, 8, 3, 10, 5];
+const wallData = JSON.stringify({
+  urls: tiles.map((t) => t.src.src),
+  alts: tiles.map((t) => t.alt),
+  captions: tiles.map((t) => t.caption),
+});
+
+// 花瓣：致敬「烙印战士」的光中花瓣，参数由索引确定
 const petals = Array.from({ length: 10 }, (_, i) => ({
   x: (i * 89 + 7) % 100,
   delay: ((i * 1.9) % 11).toFixed(1),
@@ -43,67 +52,74 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     ))
   }
 
-  <div class="container">
-    <div class="hero-copy">
-      <h1 class="hero-title" aria-label="Loky">
-        <LokyMark />
-      </h1>
-      <p class="hero-subtitle">iOS 开发者</p>
-      <p class="hero-quote">「千磨万击还坚劲，任尔东西南北风。」</p>
-      <a class="hero-cta" href="#identity">开始了解 ↓</a>
+  {/* —— 立方体照片墙：位于 LOKY 正上方 —— */}
+  <div class="wall-scene">
+    <div class="wall-grid" aria-hidden="true">
+      {Array.from({ length: 12 }).map(() => <span class="slot" />)}
     </div>
-
-    <!-- 照片墙：浮游方块 -->
-    <div class="wall" data-wall aria-label="喜欢的动漫作品照片墙">
+    <div class="cubes" data-wave-wall>
       {
-        tiles.map((t, i) => (
-          <div
-            class="tile-wrap reveal"
-            style={`--d:${i % 5}; --fd:${(6 + (i % 4) * 1.4).toFixed(1)}s; --fdel:${((i * 0.9) % 5).toFixed(1)}s;`}
-          >
-            <figure class="tile">
-              <Image
-                src={t.src}
-                alt={t.alt}
-                width={560}
-                format="webp"
-                quality={78}
-                loading={i < 5 ? 'eager' : 'lazy'}
-              />
-              <figcaption>{t.caption}</figcaption>
-            </figure>
+        initialSlots.map((slot, i) => (
+          <div class="cube-pos" data-slot={slot}>
+            <div class="cube" data-img={i}>
+              <div class="face face-top" />
+              <div class="face face-right" />
+              <figure class="face face-front">
+                <Image
+                  src={tiles[i].src}
+                  alt={tiles[i].alt}
+                  width={560}
+                  format="webp"
+                  quality={78}
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                />
+                <figcaption>{tiles[i].caption}</figcaption>
+              </figure>
+            </div>
+            <div class="cube-shadow" />
           </div>
         ))
       }
     </div>
+    <script type="application/json" data-wall-data set:html={wallData} />
+  </div>
+
+  {/* —— LOKY 浮于渐变过渡之上 —— */}
+  <div class="container hero-copy">
+    <h1 class="hero-title" aria-label="Loky">
+      <LokyMark />
+    </h1>
+    <p class="hero-subtitle">iOS 开发者</p>
+    <p class="hero-quote">「千磨万击还坚劲，任尔东西南北风。」</p>
+    <a class="hero-cta" href="#identity">开始了解 ↓</a>
   </div>
 </section>
 
 <style>
   .hero {
     position: relative;
-    padding: 150px 0 90px;
+    padding: 64px 0 90px;
     overflow: hidden;
     text-align: center;
   }
 
-  /* —— 柔光：暖光在上、紫晕在侧 —— */
+  /* —— 柔光 —— */
   .hero-glow-warm {
     position: absolute;
-    top: -20%;
+    top: -14%;
     left: 50%;
     transform: translateX(-50%);
     width: min(72vmin, 620px);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 178, 122, 0.38), rgba(255, 178, 122, 0) 65%);
+    background: radial-gradient(circle, rgba(255, 178, 122, 0.35), rgba(255, 178, 122, 0) 65%);
     filter: blur(28px);
     pointer-events: none;
   }
 
   .hero-glow-violet {
     position: absolute;
-    bottom: -16%;
+    bottom: -12%;
     right: -12%;
     width: 46vmax;
     aspect-ratio: 1;
@@ -144,25 +160,168 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     }
   }
 
-  /* —— 文字区（简约）—— */
+  /* ============================================================
+     立方体照片墙：12 点位，波浪浮游，JS 驱动
+     ============================================================ */
+  .wall-scene {
+    position: relative;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 24px;
+    perspective: 1100px;
+  }
+
+  .wall-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 22px;
+  }
+
+  .slot {
+    aspect-ratio: 1;
+  }
+
+  .cubes {
+    position: absolute;
+    inset: 0 24px;
+    z-index: 2;
+    /* 渐变过渡：立方体下缘沉入背景雾中，LOKY 浮于其上 */
+    -webkit-mask-image: linear-gradient(180deg, #000 58%, transparent 97%);
+    mask-image: linear-gradient(180deg, #000 58%, transparent 97%);
+  }
+
+  .cube-pos {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    will-change: transform;
+  }
+
+  .cubes[data-ready] .cube-pos {
+    opacity: 1;
+  }
+
+  .cube {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .face {
+    position: absolute;
+  }
+
+  /* 正面：照片 */
+  .face-front {
+    inset: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 20px 44px rgba(93, 70, 140, 0.24);
+    backface-visibility: hidden;
+    cursor: pointer;
+  }
+
+  .face-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .face-front figcaption {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 30px 12px 11px;
+    font-size: 12.5px;
+    font-weight: 550;
+    letter-spacing: 0.1em;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(27, 20, 32, 0.75));
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+  }
+
+  .face-front:hover figcaption {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* 顶面：立方体厚度（受光更亮） */
+  .face-top {
+    left: 2%;
+    width: 96%;
+    height: 15px;
+    bottom: 100%;
+    transform-origin: 50% 100%;
+    transform: rotateX(90deg);
+    background: linear-gradient(180deg, #5a4c72, #443757);
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* 右侧面：立方体厚度（背光更暗） */
+  .face-right {
+    top: 2%;
+    height: 96%;
+    width: 15px;
+    left: 100%;
+    transform-origin: 0% 50%;
+    transform: rotateY(90deg);
+    background: linear-gradient(90deg, #3a2f47, #221a2c);
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* 地面投影 */
+  .cube-shadow {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    top: 104%;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(60, 40, 100, 0.28), transparent 70%);
+    filter: blur(3px);
+  }
+
+  /* ============================================================
+     LOKY：浮于过渡之上，轻轻呼吸
+     ============================================================ */
   .hero-copy {
     position: relative;
+    z-index: 6;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 14px;
+    margin-top: -26px;
   }
 
   .hero-title {
     line-height: 0;
-    animation: rise-in 0.9s var(--ease-out) both;
+    animation:
+      rise-in 0.9s var(--ease-out) both,
+      hero-bob 6s ease-in-out 1.2s infinite alternate;
+  }
+
+  @keyframes hero-bob {
+    from {
+      transform: translateY(-4px);
+    }
+    to {
+      transform: translateY(5px);
+    }
   }
 
   /* 字标 SVG 在子组件内部，需用 :global 穿透作用域 */
   .hero-title :global(svg.loky-mark) {
     width: clamp(270px, 40vw, 420px);
     height: auto;
-    filter: drop-shadow(0 12px 28px rgba(43, 28, 64, 0.28));
+    filter: drop-shadow(0 14px 30px rgba(43, 28, 64, 0.3));
   }
 
   .hero-subtitle {
@@ -210,145 +369,192 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     }
   }
 
-  /* —— 照片墙（PlayStation 游戏墙式浮游方块）—— */
-  .wall {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 18px;
-    margin-top: 72px;
-  }
-
-  /* 每个方块各自缓慢浮游 */
-  .tile-wrap {
-    animation: tile-float var(--fd, 7s) ease-in-out var(--fdel, 0s) infinite alternate;
-  }
-
-  @keyframes tile-float {
-    from {
-      transform: translateY(-4px);
-    }
-    to {
-      transform: translateY(5px);
-    }
-  }
-
-  .tile {
-    position: relative;
-    margin: 0;
-    aspect-ratio: 1;
-    border-radius: 20px;
-    overflow: hidden;
-    background: var(--bg-elevated);
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    box-shadow: 0 14px 34px rgba(93, 70, 140, 0.18);
-    cursor: pointer;
-    /* 3D 倾斜（--rx/--ry 由指针驱动）+ 悬停放大 */
-    transform: perspective(720px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
-      scale(var(--s, 1));
-    transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
-    will-change: transform;
-  }
-
-  .tile:hover {
-    --s: 1.06;
-    box-shadow: 0 28px 58px rgba(93, 70, 140, 0.32), 0 0 0 1px rgba(199, 58, 43, 0.28);
-    z-index: 2;
-  }
-
-  .tile img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .tile figcaption {
-    position: absolute;
-    inset: auto 0 0 0;
-    padding: 30px 12px 11px;
-    font-size: 12.5px;
-    font-weight: 550;
-    letter-spacing: 0.1em;
-    color: #fff;
-    background: linear-gradient(transparent, rgba(27, 20, 32, 0.75));
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
-  }
-
-  .tile:hover figcaption {
-    opacity: 1;
-    transform: none;
-  }
-
   @media (max-width: 640px) {
-    .hero {
-      padding-top: 120px;
+    .wall-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
     }
-    .wall {
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 14px;
-      margin-top: 56px;
+    .cubes {
+      inset: 0 16px;
+    }
+  }
+
+  /* 无 JS 环境退化为静态网格 */
+  @media (scripting: none) {
+    .cubes {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 22px;
+    }
+    .cube-pos {
+      position: static !important;
+      opacity: 1;
+      width: auto !important;
+      height: auto !important;
+      aspect-ratio: 1;
+      transform: none !important;
+    }
+    .cube {
+      transform: none !important;
+    }
+    .face-top,
+    .face-right {
+      display: none;
     }
   }
 </style>
 
 <script>
-  // 照片墙 3D 倾斜：指针在方块内移动时，方块朝指针方向微微翻转
-  const initTilt = () => {
-    const wall = document.querySelector<HTMLElement>('[data-wall]');
-    if (!wall || wall.dataset.tiltBound) return;
-    wall.dataset.tiltBound = '1';
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // 波浪立方体照片墙：
+  // - 12 个虚拟点位，任意时刻 4-5 个立方体，位置随机轮换
+  // - 高度沿正弦波起伏（随时间横向传播），附带轻微姿态摆动
+  // - 每 3 秒一个立方体淡出 → 换新点位 + 换图（洗牌袋保证 10 张轮完一轮）
+  const initWaveWall = () => {
+    const layer = document.querySelector('[data-wave-wall]');
+    const dataEl = document.querySelector('[data-wall-data]');
+    if (!layer || !dataEl || layer.dataset.bound) return;
+    layer.dataset.bound = '1';
 
-    wall.querySelectorAll<HTMLElement>('.tile').forEach((tile) => {
-      if (tile.dataset.tilt) return;
-      tile.dataset.tilt = '1';
-      tile.addEventListener('pointermove', (e) => {
-        const r = tile.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - 0.5;
-        const y = (e.clientY - r.top) / r.height - 0.5;
-        tile.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`);
-        tile.style.setProperty('--ry', `${(x * 12).toFixed(2)}deg`);
+    const data = JSON.parse(dataEl.textContent);
+    const cubes = [...layer.querySelectorAll('.cube')];
+    const slots = [...document.querySelectorAll('.wall-grid .slot')];
+    if (!cubes.length || !slots.length) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 预加载全部图片，轮换时无闪烁
+    data.urls.forEach((u) => {
+      const im = new Image();
+      im.src = u;
+    });
+
+    const st = cubes.map((el, i) => ({
+      el,
+      pos: el.closest('.cube-pos'),
+      slot: +el.closest('.cube-pos').dataset.slot,
+      img: +el.dataset.img,
+      j: i * 1.73, // 波形相位抖动
+      xn: 0, // 点位水平位置（0-1），决定波浪相位
+      w: 0,
+      x: 0,
+      y: 0,
+      tx: 0,
+      ty: 0,
+      cx: 0,
+      cy: 0,
+    }));
+
+    let bag = [];
+    const nextImg = () => {
+      if (!bag.length) {
+        bag = data.urls.map((_, i) => i);
+        for (let k = bag.length - 1; k > 0; k--) {
+          const r = Math.floor(Math.random() * (k + 1));
+          [bag[k], bag[r]] = [bag[r], bag[k]];
+        }
+        // 避免与当前在展的重复
+        const shown = new Set(st.map((s) => s.img));
+        bag.sort((a, b) => (shown.has(a) ? 1 : 0) - (shown.has(b) ? 1 : 0));
+      }
+      return bag.shift();
+    };
+
+    const place = () => {
+      const host = layer.getBoundingClientRect();
+      st.forEach((s) => {
+        const cell = slots[s.slot].getBoundingClientRect();
+        s.w = cell.width * 0.92;
+        s.x = cell.left - host.left + cell.width / 2;
+        s.y = cell.top - host.top + cell.height / 2;
+        s.xn = host.width > 0 ? (s.x / host.width) * 2 - 1 : 0;
+        s.pos.style.width = s.w + 'px';
+        s.pos.style.height = s.w + 'px';
       });
-      tile.addEventListener('pointerleave', () => {
-        tile.style.setProperty('--rx', '0deg');
-        tile.style.setProperty('--ry', '0deg');
+      layer.dataset.ready = '1';
+    };
+    place();
+    let resizeT;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeT);
+      resizeT = setTimeout(place, 120);
+    });
+
+    // 入场：错峰浮现
+    st.forEach((s, i) => {
+      s.el.animate(
+        [{ opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0)' }],
+        { duration: 650, delay: 120 + i * 110, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }
+      );
+    });
+
+    if (reduce) {
+      st.forEach((s) => {
+        s.pos.style.transform = `translate3d(${s.x - s.w / 2}px, ${s.y - s.w / 2}px, 0)`;
+        s.el.style.transform = 'rotateX(10deg) rotateY(-12deg)';
+      });
+      return;
+    }
+
+    // 指针倾斜（指针在正面移动时立方体朝向随之偏转）
+    st.forEach((s) => {
+      const face = s.el.querySelector('.face-front');
+      face.addEventListener('pointermove', (e) => {
+        const r = face.getBoundingClientRect();
+        s.tx = ((e.clientY - r.top) / r.height - 0.5) * 9;
+        s.ty = ((e.clientX - r.left) / r.width - 0.5) * 11;
+      });
+      face.addEventListener('pointerleave', () => {
+        s.tx = 0;
+        s.ty = 0;
       });
     });
-  };
 
-  // 首屏文字滚动视差：轻微上移并淡出
-  const initParallax = () => {
-    const copy = document.querySelector<HTMLElement>('.hero-copy');
-    if (!copy || copy.dataset.parallaxBound) return;
-    copy.dataset.parallaxBound = '1';
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const y = window.scrollY;
-      if (y < window.innerHeight) {
-        copy.style.transform = `translateY(${y * 0.18}px)`;
-        copy.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.6)));
+    // 波浪主循环
+    const t0 = performance.now();
+    const tick = (now) => {
+      const t = now - t0;
+      for (const s of st) {
+        const wave = Math.sin(t / 950 + s.xn * 2.6 + s.j) * 11;
+        s.cx += (s.tx - s.cx) * 0.12;
+        s.cy += (s.ty - s.cy) * 0.12;
+        const rx = 10 + s.cx + Math.sin(t / 1400 + s.j) * 2.6;
+        const ry = -12 + s.cy + Math.cos(t / 1600 + s.j) * 2.6;
+        const rz = Math.sin(t / 1900 + s.j) * 1.4;
+        s.pos.style.transform = `translate3d(${s.x - s.w / 2}px, ${s.y - s.w / 2 + wave}px, 0)`;
+        s.el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
       }
+      requestAnimationFrame(tick);
     };
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(update);
-        }
-      },
-      { passive: true }
-    );
+    requestAnimationFrame(tick);
+
+    // 轮播：随机一块淡出 → 新点位 + 新图片
+    setInterval(() => {
+      const s = st[Math.floor(Math.random() * st.length)];
+      const occupied = new Set(st.map((x) => x.slot));
+      const free = slots.map((_, i) => i).filter((i) => !occupied.has(i));
+      if (!free.length) return;
+      const ns = free[Math.floor(Math.random() * free.length)];
+      const ni = nextImg();
+      s.el
+        .animate(
+          [{ opacity: 1 }, { opacity: 0, filter: 'blur(6px)' }],
+          { duration: 260, easing: 'ease-in' }
+        )
+        .onfinish = () => {
+          s.slot = ns;
+          s.img = ni;
+          place();
+          const img = s.el.querySelector('img');
+          img.src = data.urls[ni];
+          img.alt = data.alts[ni];
+          s.el.querySelector('figcaption').textContent = data.captions[ni];
+          s.el.animate(
+            [{ opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0)' }],
+            { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' }
+          );
+        };
+    }, 3000);
   };
 
-  document.addEventListener('astro:page-load', () => {
-    initTilt();
-    initParallax();
-  });
+  document.addEventListener('astro:page-load', initWaveWall);
 </script>
