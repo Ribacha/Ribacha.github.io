@@ -1,13 +1,15 @@
 ---
+import Emblem from './Emblem.astro';
+
 // 联系面板 + 页脚
 ---
 
 <section id="contact" class="panel">
   <div class="container contact-wrap">
-    <p class="panel-eyebrow reveal">Contact · 联系我</p>
+    <p class="panel-eyebrow reveal"><Emblem size={14} /> Contact · 联系我</p>
     <h2 class="panel-title reveal" style="--d:1">来找我玩</h2>
     <p class="panel-desc reveal" style="--d:2">
-      有趣的项目、iOS 与 AI 的交流，或者只是打个招呼，都欢迎。
+      想聊 iOS、Objective-C 底层，或者只是打个招呼，都欢迎。
     </p>
     <div class="contact-actions reveal" style="--d:3">
       <a
@@ -25,7 +27,7 @@
 
 <footer class="site-footer">
   <div class="container footer-inner">
-    <p>© {new Date().getFullYear()} KKxxLoky · kkxxloky.com</p>
+    <p>© {new Date().getFullYear()} Loky · kkxxloky.com</p>
     <p>
       Built with <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>
       · Hosted on
@@ -37,6 +39,20 @@
 <style>
   .contact-wrap {
     text-align: center;
+  }
+
+  .contact-wrap .panel-eyebrow {
+    justify-content: center;
+  }
+
+  .contact-wrap .panel-eyebrow::after {
+    display: none;
+  }
+
+  .contact-wrap .panel-title::after {
+    margin-left: auto;
+    margin-right: auto;
+    background: linear-gradient(90deg, rgba(224, 73, 47, 0), var(--accent), rgba(224, 73, 47, 0));
   }
 
   .contact-wrap .panel-desc {
@@ -57,17 +73,18 @@
     font-size: 16px;
     font-weight: 600;
     transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out),
-      background 0.3s ease, color 0.3s ease;
+      background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
   .btn-primary {
-    background: var(--text);
-    color: var(--bg-elevated);
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color: #fff;
+    box-shadow: 0 8px 30px rgba(224, 73, 47, 0.25);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 14px 40px rgba(224, 73, 47, 0.4);
   }
 
   .btn-ghost {
@@ -78,7 +95,7 @@
 
   .btn-ghost:hover {
     transform: translateY(-2px);
-    border-color: var(--accent);
+    border-color: rgba(224, 73, 47, 0.5);
     color: var(--accent);
   }
 

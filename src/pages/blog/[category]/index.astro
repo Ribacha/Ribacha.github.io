@@ -1,0 +1,137 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import Emblem from '../../../components/Emblem.astro';
+import { CATEGORIES, isCategory, formatDate } from '../../../lib/blog.ts';
+
+// 分类文章列表（二级界面第二层）
+export async function getStaticPaths() {
+  return Object.keys(CATEGORIES).map((category) => ({ params: { category } }));
+}
+
+const { category } = Astro.params;
+if (!category || !isCategory(category)) {
+  return Astro.redirect('/blog/');
+}
+const meta = CATEGORIES[category];
+const posts = (await getCollection('blog', (e) => e.data.category === category)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Base title={`${meta.name} · Loky 的博客`} description={meta.desc}>
+  <section class="panel list-head">
+    <div class="container">
+      <nav class="crumb reveal">
+        <a href="/blog/">博客</a>
+        <span aria-hidden="true">/</span>
+        <span class="crumb-here">{meta.name}</span>
+      </nav>
+      <p class="panel-eyebrow reveal" style="--d:1"><Emblem size={14} /> {meta.en}</p>
+      <h1 class="panel-title reveal" style="--d:2">{meta.name}</h1>
+      <p class="panel-desc reveal" style="--d:3">{meta.desc} · 共 {posts.length} 篇</p>
+
+      <div class="post-list">
+        {
+          posts.map((post, i) => (
+            <a
+              class="card post-item reveal"
+              style={`--d:${i + 1}`}
+              href={`/blog/${category}/${post.id.split('/').pop()}/`}
+            >
+              <div class="post-meta">
+                <time datetime={post.data.date.toISOString()}>
+                  {formatDate(post.data.date)}
+                </time>
+                {post.data.tags.length > 0 && <span class="dot">·</span>}
+                <span class="post-tags">{post.data.tags.join(' / ')}</span>
+              </div>
+              <h2 class="card-title">{post.data.title}</h2>
+              {post.data.description && <p class="card-text">{post.data.description}</p>}
+              <span class="post-arrow" aria-hidden="true">→</span>
+            </a>
+          ))
+        }
+        {
+          posts.length === 0 && (
+            <p class="empty reveal" style="--d:1">
+              这个分类还没有文章——第一篇正在路上。
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .list-head {
+    min-height: 72vh;
+  }
+
+  .crumb {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 28px;
+  }
+
+  .crumb a {
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+  }
+
+  .crumb a:hover {
+    color: var(--accent);
+  }
+
+  .crumb-here {
+    color: var(--text);
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 760px;
+  }
+
+  .post-item {
+    display: block;
+    padding-right: 64px;
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .post-tags {
+    color: var(--accent-2);
+  }
+
+  .post-arrow {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--text-tertiary);
+    transition: transform 0.35s var(--ease-out), color 0.35s ease;
+  }
+
+  .post-item:hover .post-arrow {
+    transform: translateY(-50%) translateX(6px);
+    color: var(--accent);
+  }
+
+  .empty {
+    color: var(--text-tertiary);
+    font-size: 15px;
+  }
+</style>

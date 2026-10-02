@@ -1,4 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#1d1d1f"/>
-  <text x="32" y="44" font-family="-apple-system, 'SF Pro Display', 'PingFang SC', sans-serif" font-size="34" font-weight="700" fill="#ffffff" text-anchor="middle">L</text>
+  <rect width="64" height="64" rx="14" fill="#0f0d10"/>
+  <g fill="none" stroke="#e0492f" stroke-width="4.5" stroke-linecap="round">
+    <path d="M34 10 L34 54"/>
+    <path d="M34 10 C43 10.8 47 15.6 47 21.4 C47 27.2 41.8 30.2 34 31"/>
+    <circle cx="24" cy="44" r="7.4"/>
+    <path d="M34 54 L42.6 47.6"/>
+  </g>
 </svg>

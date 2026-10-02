@@ -1,27 +1,29 @@
 ---
-// 技能面板：分组标签云
+import Emblem from './Emblem.astro';
+
+// 技能面板：以 iOS 为基准分组
 const groups = [
   {
     label: '语言与框架',
-    items: ['Objective-C', 'Objective-C++', 'UIKit', 'Python', 'Git'],
+    items: ['Objective-C', 'Objective-C++', 'UIKit', 'Foundation', 'Core Animation'],
   },
   {
-    label: '计算机基础',
-    items: ['数据结构与算法', '操作系统', '计算机网络', '设计模式'],
+    label: '底层与工程',
+    items: ['Runtime', '内存管理', '多线程', 'Instruments', 'Git'],
   },
   {
     label: '正在探索',
-    items: ['RAG', 'Agent', 'Prompt Engineering', 'Swift'],
+    items: ['Swift', 'SwiftUI', 'RAG', 'Agent'],
   },
 ];
 ---
 
 <section id="skills" class="panel">
   <div class="container">
-    <p class="panel-eyebrow reveal">Skills · 技能</p>
+    <p class="panel-eyebrow reveal"><Emblem size={14} /> Skills · 技能</p>
     <h2 class="panel-title reveal" style="--d:1">工具箱里有什么</h2>
     <p class="panel-desc reveal" style="--d:2">
-      不追热点，一个一个学扎实。以下是已经在用、和正在学的东西。
+      不追热点，一个一个学扎实。围绕 iOS，从框架到底层，再到正在打开的新地图。
     </p>
     <div class="skill-groups">
       {
@@ -48,12 +50,23 @@ const groups = [
   }
 
   .group-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-tertiary);
     margin-bottom: 16px;
+  }
+
+  .group-label::after {
+    content: '';
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
   }
 
   .pill-list {
@@ -78,6 +91,6 @@ const groups = [
   .pill:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-card-hover);
-    border-color: var(--accent);
+    border-color: rgba(224, 73, 47, 0.5);
   }
 </style>

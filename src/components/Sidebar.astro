@@ -2,12 +2,13 @@
 // 侧边栏：右上角按钮唤出，毛玻璃遮罩 + 弹性滑入
 // 分类导航锚点对应首页各面板；Esc / 点击遮罩 / 点击链接均可关闭
 const navItems = [
-  { href: '#hero', label: '首页', en: 'Home' },
-  { href: '#identity', label: '个人身份', en: 'Identity' },
-  { href: '#skills', label: '技能', en: 'Skills' },
-  { href: '#projects', label: '项目', en: 'Projects' },
-  { href: '#hobbies', label: '个人喜好', en: 'Hobbies' },
-  { href: '#contact', label: '联系我', en: 'Contact' },
+  { href: '/#hero', label: '首页', en: 'Home' },
+  { href: '/#identity', label: '个人身份', en: 'Identity' },
+  { href: '/#skills', label: '技能', en: 'Skills' },
+  { href: '/#projects', label: '项目', en: 'Projects' },
+  { href: '/#hobbies', label: '个人喜好', en: 'Hobbies' },
+  { href: '/blog/', label: '博客', en: 'Blog' },
+  { href: '/#contact', label: '联系我', en: 'Contact' },
 ];
 ---
 
@@ -26,7 +27,7 @@ const navItems = [
   <div class="sidebar-backdrop" aria-hidden="true"></div>
 
   <aside class="sidebar-panel" id="sidebar-panel" aria-hidden="true" aria-label="站点导航">
-    <p class="sidebar-label">KKxxLoky</p>
+    <p class="sidebar-label">Loky</p>
     <nav>
       {
         navItems.map((item, i) => (
@@ -60,7 +61,7 @@ const navItems = [
     height: 48px;
     border-radius: 50%;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(23, 21, 26, 0.62);
     -webkit-backdrop-filter: blur(16px) saturate(1.5);
     backdrop-filter: blur(16px) saturate(1.5);
     box-shadow: var(--shadow-card);
@@ -70,11 +71,13 @@ const navItems = [
     align-items: center;
     justify-content: center;
     gap: 6px;
-    transition: transform 0.4s var(--ease-out), background 0.3s ease;
+    transition: transform 0.4s var(--ease-out), background 0.3s ease,
+      border-color 0.3s ease;
   }
 
   .sidebar-toggle:hover {
     transform: scale(1.06);
+    border-color: rgba(224, 73, 47, 0.5);
   }
 
   .sidebar-toggle .bar {
@@ -99,7 +102,7 @@ const navItems = [
     position: fixed;
     inset: 0;
     z-index: 40;
-    background: rgba(0, 0, 0, 0.32);
+    background: rgba(8, 6, 9, 0.55);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     opacity: 0;
@@ -124,11 +127,11 @@ const navItems = [
     display: flex;
     flex-direction: column;
     padding: 96px 36px 36px;
-    background: rgba(255, 255, 255, 0.82);
-    -webkit-backdrop-filter: blur(28px) saturate(1.6);
-    backdrop-filter: blur(28px) saturate(1.6);
+    background: rgba(20, 18, 23, 0.85);
+    -webkit-backdrop-filter: blur(28px) saturate(1.4);
+    backdrop-filter: blur(28px) saturate(1.4);
     border-left: 1px solid var(--border);
-    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.12);
+    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
     transform: translateX(102%);
     visibility: hidden;
     transition:
@@ -161,7 +164,7 @@ const navItems = [
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 15px 4px;
+    padding: 14px 4px;
     border-bottom: 1px solid var(--border);
     /* 逐条错峰浮现 */
     opacity: 0;
@@ -173,7 +176,7 @@ const navItems = [
   #sidebar-root.open .sidebar-link {
     opacity: 1;
     transform: none;
-    transition-delay: calc(0.12s + var(--i) * 60ms);
+    transition-delay: calc(0.12s + var(--i) * 55ms);
   }
 
   .link-index {
@@ -187,7 +190,7 @@ const navItems = [
     flex: 1;
     display: flex;
     flex-direction: column;
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 650;
     letter-spacing: -0.01em;
   }
@@ -259,7 +262,7 @@ const navItems = [
     toggle.dataset.bound = '1';
     toggle.addEventListener('click', () => (root.classList.contains('open') ? close() : open()));
     backdrop.addEventListener('click', close);
-    panel.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+    panel.querySelectorAll<HTMLAnchorElement>('a').forEach((a) => {
       a.addEventListener('click', () => close());
     });
   };

@@ -1,42 +1,47 @@
 ---
-// 个人身份面板
+import Emblem from './Emblem.astro';
+
+// 个人身份面板：以 iOS 为基准
 const cards = [
   {
-    icon: '🍎',
+    no: '01',
     title: 'iOS 开发者',
-    text: '主要使用 Objective-C / Objective-C++，沉浸在 UIKit 与运行时的世界里，喜欢把界面打磨到像素级。',
+    text: '以 Objective-C / Objective-C++ 为主力， UIKit 的深度使用者，把界面与交互打磨到像素级。',
   },
   {
-    icon: '📚',
-    title: '计算机科学爱好者',
-    text: '数据结构与算法、操作系统、计算机网络、设计模式——基础四大件，慢慢啃，不着急。',
+    no: '02',
+    title: '底层与原理',
+    text: 'Runtime、内存管理、Core Animation 渲染管线——知其然，更要知其所以然。',
   },
   {
-    icon: '🤖',
-    title: 'AI 学习中',
-    text: '正在探索 RAG 与 Agent，用 Python 做实验，把大模型装进自己的工具箱。',
+    no: '03',
+    title: '计算机基础',
+    text: '数据结构与算法、操作系统、计算机网络、设计模式——iOS 大厦下面的地基。',
   },
   {
-    icon: '🕷️',
-    title: '你的友好邻居',
-    text: '蜘蛛侠电影爱好者。相信能力越大，责任越大——写代码也一样。',
+    no: '04',
+    title: 'AI × iOS',
+    text: '正在探索 RAG 与 Agent，为下一代 iOS 智能应用储备弹药。',
   },
 ];
 ---
 
 <section id="identity" class="panel">
   <div class="container">
-    <p class="panel-eyebrow reveal">Identity · 个人身份</p>
+    <p class="panel-eyebrow reveal"><Emblem size={14} /> Identity · 个人身份</p>
     <h2 class="panel-title reveal" style="--d:1">你好，我是 Loky</h2>
     <p class="panel-desc reveal" style="--d:2">
-      一个喜欢把东西做出来、也喜欢弄明白原理的人。白天写 Objective-C，晚上折腾 AI，
-      间歇性迷恋键盘与效率工具。
+      一个把 iOS 做到手艺层面的开发者。白天写 Objective-C，晚上研究底层原理，
+      间歇折腾 AI 工具链——像磨刀一样磨自己。
     </p>
     <div class="card-grid">
       {
         cards.map((card, i) => (
           <article class="card reveal" style={`--d:${i + 1}`}>
-            <div class="card-icon" aria-hidden="true">{card.icon}</div>
+            <div class="card-top">
+              <span class="card-no">{card.no}</span>
+              <span class="card-line" aria-hidden="true" />
+            </div>
             <h3 class="card-title">{card.title}</h3>
             <p class="card-text">{card.text}</p>
           </article>

@@ -1,0 +1,136 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import Emblem from '../../../components/Emblem.astro';
+import { CATEGORIES, isCategory, formatDate } from '../../../lib/blog.ts';
+
+// 文章内容页（二级界面第三层）
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((entry) => ({
+    params: {
+      category: entry.data.category,
+      id: entry.id.split('/').pop(),
+    },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const categoryMeta = isCategory(entry.data.category) ? CATEGORIES[entry.data.category] : null;
+const backHref = `/blog/${entry.data.category}/`;
+---
+
+<Base title={`${entry.data.title} · Loky 的博客`} description={entry.data.description}>
+  <article class="panel post-head">
+    <div class="container">
+      <nav class="crumb reveal">
+        <a href="/blog/">博客</a>
+        <span aria-hidden="true">/</span>
+        <a href={backHref}>{categoryMeta?.name ?? entry.data.category}</a>
+        <span aria-hidden="true">/</span>
+        <span class="crumb-here">正文</span>
+      </nav>
+
+      <header class="post-header reveal" style="--d:1">
+        <p class="post-meta">
+          <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+          {
+            entry.data.tags.length > 0 && (
+              <>
+                <span class="dot">·</span>
+                <span class="post-tags">{entry.data.tags.join(' / ')}</span>
+              </>
+            )
+          }
+        </p>
+        <h1 class="panel-title post-title">{entry.data.title}</h1>
+        {entry.data.description && <p class="post-lede">{entry.data.description}</p>}
+      </header>
+
+      <div class="prose reveal" style="--d:2">
+        <Content />
+      </div>
+
+      <footer class="post-footer reveal" style="--d:3">
+        <Emblem size={14} />
+        <a class="back-link" href={backHref}>← 返回 {categoryMeta?.name ?? '列表'}</a>
+      </footer>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .crumb {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 36px;
+  }
+
+  .crumb a {
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+  }
+
+  .crumb a:hover {
+    color: var(--accent);
+  }
+
+  .crumb-here {
+    color: var(--text);
+  }
+
+  .post-header {
+    margin-bottom: 40px;
+  }
+
+  .post-header .panel-title {
+    margin-bottom: 12px;
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--text-tertiary);
+    margin-bottom: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .post-tags {
+    color: var(--accent-2);
+  }
+
+  .post-lede {
+    font-size: 17px;
+    color: var(--text-secondary);
+  }
+
+  .post-footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .post-footer :global(svg) {
+    color: var(--accent);
+    flex: none;
+  }
+
+  .back-link {
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 550;
+    transition: color 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+</style>
