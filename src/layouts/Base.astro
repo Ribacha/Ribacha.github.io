@@ -33,14 +33,16 @@ const {
   </head>
   <body>
     {
-      secondary && (
+      secondary ? (
         <div class="secondary-bar">
-          <span class="sec-badge">二级界面</span>
+          <span class="sec-dot" aria-hidden="true" />
           <span class="sec-label">{secondary}</span>
           <a class="sec-back" href="/">
-            <span aria-hidden="true">←</span> 返回一级界面
+            <span aria-hidden="true">←</span> 返回首页
           </a>
         </div>
+      ) : (
+        <div class="level-primary" aria-hidden="true" />
       )
     }
     <Sidebar />
@@ -51,14 +53,14 @@ const {
     {
       secondary && (
         <style>
-          /* —— 二级界面提示条：常驻顶部，明显区别于一级浏览 —— */
+          /* —— 二级界面（橙色信号）：粘性提示条，无文字标注 —— */
           .secondary-bar {
             position: sticky;
             top: 0;
             z-index: 30;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             padding: 10px 68px 10px 20px;
             background: rgba(26, 16, 48, 0.78);
             -webkit-backdrop-filter: blur(14px);
@@ -66,20 +68,20 @@ const {
             border-bottom: 1px solid rgba(255, 138, 26, 0.4);
           }
 
-          .sec-badge {
-            font-size: 11px;
-            font-weight: 750;
-            letter-spacing: 0.18em;
-            color: #150d26;
-            background: linear-gradient(135deg, #ffa042, #ff8c1a);
-            padding: 3px 10px;
+          /* 橙色信号点：代表二级界面 */
+          .sec-dot {
+            width: 9px;
+            height: 9px;
+            flex: none;
+            background: #ff8c1a;
+            box-shadow: 0 0 10px rgba(255, 138, 26, 0.7);
             clip-path: polygon(
-              7px 0,
+              3px 0,
               100% 0,
-              100% calc(100% - 7px),
-              calc(100% - 7px) 100%,
+              100% calc(100% - 3px),
+              calc(100% - 3px) 100%,
               0 100%,
-              0 7px
+              0 3px
             );
           }
 
@@ -126,6 +128,22 @@ const {
             .sec-back {
               padding: 5px 10px;
             }
+          }
+        </style>
+      )
+    }
+    {
+      !secondary && (
+        <style>
+          /* —— 一级界面（深紫信号）：顶部细色带 —— */
+          .level-primary {
+            height: 5px;
+            background: linear-gradient(
+              90deg,
+              rgba(140, 90, 255, 0) 0%,
+              rgba(140, 90, 255, 0.85) 50%,
+              rgba(140, 90, 255, 0) 100%
+            );
           }
         </style>
       )

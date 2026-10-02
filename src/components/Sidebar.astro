@@ -38,6 +38,7 @@ const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : ''
             class:list={['sidebar-link', { active: activeKey === item.key }]}
             href={item.href}
             style={`--i:${i}`}
+            data-key={item.key}
             aria-current={activeKey === item.key ? 'page' : undefined}
           >
             <span class="link-index">{String(i + 1).padStart(2, '0')}</span>
@@ -290,4 +291,55 @@ const activeKey = path.startsWith('/blog') ? 'blog' : path === '/' ? 'home' : ''
   };
 
   document.addEventListener('astro:page-load', setupSidebar);
+
+  // —— 滚动同步（scrollspy）：首页滚动到哪个面板，侧边栏就高亮哪一项 ——
+  const setActive = (key: string) => {
+    document.querySelectorAll('#sidebar-root .sidebar-link').forEach((a) => {
+      const on = (a as HTMLElement).dataset.key === key;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  };
+
+  const initScrollSpy = () => {
+    if (location.pathname.startsWith('/blog')) {
+      setActive('blog');
+      return;
+    }
+    if (location.pathname !== '/') return;
+
+    const ids = ['hero', 'identity', 'skills', 'projects', 'hobbies', 'contact'];
+    const sections = ids
+      .map((id) => ({ id, el: document.getElementById(id) }))
+      .filter((s): s is { id: string; el: HTMLElement } => !!s.el);
+    if (!sections.length) return;
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const line = window.scrollY + window.innerHeight * 0.35;
+      let current = sections[0].id;
+      for (const s of sections) {
+        if (s.el.offsetTop <= line) current = s.id;
+      }
+      setActive(current === 'hero' ? 'home' : current);
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            update();
+            ticking = false;
+          });
+        }
+      },
+      { passive: true }
+    );
+    update();
+  };
+
+  document.addEventListener('astro:page-load', initScrollSpy);
 </script>
