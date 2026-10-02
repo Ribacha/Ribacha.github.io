@@ -81,6 +81,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
         ))
       }
     </div>
+    <div class="wall-haze" aria-hidden="true"></div>
     <script type="application/json" data-wall-data set:html={wallData} />
   </div>
 
@@ -168,7 +169,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     max-width: 920px;
     margin: 0 auto;
     padding: 0 24px;
-    perspective: 1100px;
+    perspective: 900px;
   }
 
   .wall-grid {
@@ -184,10 +185,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
   .cubes {
     position: absolute;
     inset: 0 24px;
-    z-index: 2;
-    /* 渐变过渡：立方体下缘沉入背景雾中，LOKY 浮于其上 */
-    -webkit-mask-image: linear-gradient(180deg, #000 58%, transparent 97%);
-    mask-image: linear-gradient(180deg, #000 58%, transparent 97%);
+    transform-style: preserve-3d;
   }
 
   .cube-pos {
@@ -195,6 +193,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     left: 0;
     top: 0;
     opacity: 0;
+    transform-style: preserve-3d;
     will-change: transform;
   }
 
@@ -288,12 +287,27 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     filter: blur(3px);
   }
 
-  /* ============================================================
-     LOKY：浮于过渡之上，轻轻呼吸
-     ============================================================ */
+  /* 底部雾化过渡带（全幅宽避免接缝）：立方体沉入其中 */
+  .wall-haze {
+    position: absolute;
+    left: 50%;
+    bottom: -36px;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 190px;
+    background: linear-gradient(
+      180deg,
+      rgba(236, 229, 246, 0) 0%,
+      rgba(236, 229, 246, 0.55) 45%,
+      rgba(236, 229, 246, 0.9) 78%,
+      #ece5f6 100%
+    );
+    pointer-events: none;
+    z-index: 8;
+  }
   .hero-copy {
     position: relative;
-    z-index: 6;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -431,6 +445,7 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
     const st = cubes.map((el, i) => ({
       el,
       pos: el.closest('.cube-pos'),
+      shadow: el.closest('.cube-pos').querySelector('.cube-shadow'),
       slot: +el.closest('.cube-pos').dataset.slot,
       img: +el.dataset.img,
       j: i * 1.73, // 波形相位抖动
@@ -509,19 +524,34 @@ const petals = Array.from({ length: 10 }, (_, i) => ({
       });
     });
 
-    // 波浪主循环
+    // 主循环：立方体沿 Z 轴（垂直于屏幕平面）进退
+    // - 波浪沿水平方向传播：相位随点位 x 偏移，波峰此起彼伏
+    // - 透视投影让靠近时放大、退后时缩小；动态 z-index 正确遮挡
+    // - 升降速度带来倾角变化（类似电梯启停的惯性），投影随距离缩放
+    const Z_AMP = 150; // Z 轴振幅（px）
+    const WAVE_T = 560; // 波速（越小越快）
     const t0 = performance.now();
     const tick = (now) => {
       const t = now - t0;
       for (const s of st) {
-        const wave = Math.sin(t / 950 + s.xn * 2.6 + s.j) * 11;
+        const ph = t / WAVE_T + s.xn * 2.6 + s.j;
+        const wave = Math.sin(ph); // -1 远 .. 1 近
+        const vz = Math.cos(ph); // Z 轴速度（用于惯性倾斜）
+        const z = wave * Z_AMP;
         s.cx += (s.tx - s.cx) * 0.12;
         s.cy += (s.ty - s.cy) * 0.12;
-        const rx = 10 + s.cx + Math.sin(t / 1400 + s.j) * 2.6;
-        const ry = -12 + s.cy + Math.cos(t / 1600 + s.j) * 2.6;
-        const rz = Math.sin(t / 1900 + s.j) * 1.4;
-        s.pos.style.transform = `translate3d(${s.x - s.w / 2}px, ${s.y - s.w / 2 + wave}px, 0)`;
+        const rx = 10 + s.cx + Math.sin(t / 1400 + s.j) * 2 - vz * 6;
+        const ry = -12 + s.cy + Math.cos(t / 1600 + s.j) * 2;
+        const rz = Math.sin(t / 1900 + s.j) * 1.2;
+        s.pos.style.transform = `translate3d(${s.x - s.w / 2}px, ${s.y - s.w / 2}px, ${z}px)`;
+        s.pos.style.zIndex = String(Math.round(300 + z));
         s.el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+        const k = (wave + 1) / 2; // 0 远 .. 1 近
+        s.el.style.opacity = (0.78 + k * 0.22).toFixed(3);
+        if (s.shadow) {
+          s.shadow.style.opacity = (0.16 + k * 0.32).toFixed(3);
+          s.shadow.style.transform = `scaleX(${(0.7 + k * 0.55).toFixed(3)})`;
+        }
       }
       requestAnimationFrame(tick);
     };
