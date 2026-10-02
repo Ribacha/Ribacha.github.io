@@ -39,7 +39,7 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
   <div class="hero-glow-a" aria-hidden="true"></div>
   <div class="hero-glow-b" aria-hidden="true"></div>
 
-  {/* —— 相连的图片墙：底下是立方体柱身 —— */}
+  {/* —— 倾斜海平面：恒在网格 + 立方体托架海浪 —— */}
   <div class="wall-tilt">
     <div class="wall-plane">
       <div class="grid-surface" aria-hidden="true"></div>
@@ -64,8 +64,12 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
         }
       </div>
     </div>
+    {/* 四边磨砂渐变：高级感的柔化边缘 */}
+    <div class="frost frost-top" aria-hidden="true"></div>
+    <div class="frost frost-bottom" aria-hidden="true"></div>
+    <div class="frost frost-left" aria-hidden="true"></div>
+    <div class="frost frost-right" aria-hidden="true"></div>
   </div>
-  <div class="wall-haze" aria-hidden="true"></div>
   <script type="application/json" data-wall-data set:html={wallData} />
 
   {/* —— 哥特 LOKY：贴在雾带上方，不浮动 —— */}
@@ -87,7 +91,7 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
 <style>
   .hero {
     position: relative;
-    padding: 56px 0 120px;
+    padding: 44px 0 120px;
     overflow: hidden;
   }
 
@@ -122,9 +126,9 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
      ============================================================ */
   .wall-tilt {
     position: relative;
-    max-width: 1000px;
+    width: 100%;
+    max-width: 1720px;
     margin: 0 auto;
-    padding: 0 24px;
     perspective: 1000px;
     perspective-origin: 50% 18%;
   }
@@ -138,8 +142,9 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
   /* 海面网格纹理（恒在） */
   .grid-surface {
     position: absolute;
-    inset: -34px -40px;
-    border: 1px solid rgba(190, 160, 255, 0.26);
+    inset: -30px 0;
+    border-top: 1px solid rgba(190, 160, 255, 0.26);
+    border-bottom: 1px solid rgba(190, 160, 255, 0.26);
     background-image:
       linear-gradient(rgba(190, 160, 255, 0.13) 1px, transparent 1px),
       linear-gradient(90deg, rgba(190, 160, 255, 0.13) 1px, transparent 1px);
@@ -211,22 +216,63 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     transform: none;
   }
 
-  /* 过渡雾带：海面沉入背景，LOKY 贴在其上 */
-  .wall-haze {
+  /* ============================================================
+     四边磨砂渐变：backdrop 毛玻璃 + 渐变遮罩，柔化墙的边缘
+     ============================================================ */
+  .frost {
     position: absolute;
-    left: 50%;
-    bottom: 150px;
-    transform: translateX(-50%);
-    width: 100vw;
-    height: 210px;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .frost-top {
+    left: 0;
+    right: 0;
+    top: -8px;
+    height: 96px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+  }
+
+  /* 底部磨砂带：墙与 LOKY 的衔接处 */
+  .frost-bottom {
+    left: 0;
+    right: 0;
+    bottom: -46px;
+    height: 260px;
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
     background: linear-gradient(
       180deg,
       rgba(21, 13, 38, 0) 0%,
-      rgba(21, 13, 38, 0.5) 50%,
-      rgba(21, 13, 38, 0.88) 100%
+      rgba(21, 13, 38, 0.4) 55%,
+      rgba(21, 13, 38, 0.8) 100%
     );
-    pointer-events: none;
-    z-index: 8;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 100%);
+  }
+
+  .frost-left,
+  .frost-right {
+    top: 0;
+    bottom: 0;
+    width: clamp(70px, 9vw, 150px);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .frost-left {
+    left: -2px;
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
+  }
+
+  .frost-right {
+    right: -2px;
+    -webkit-mask-image: linear-gradient(270deg, #000 0%, transparent 100%);
+    mask-image: linear-gradient(270deg, #000 0%, transparent 100%);
   }
 
   /* ============================================================
@@ -345,7 +391,7 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
       grid-template-columns: repeat(3, 1fr);
     }
     .grid-surface {
-      inset: -26px -30px;
+      inset: -26px 0;
       background-size: 130px 130px;
     }
   }
