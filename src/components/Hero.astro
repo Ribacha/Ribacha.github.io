@@ -76,8 +76,8 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     </h1>
   </div>
 
-  {/* —— 右下角信息区 —— */}
-  <div class="hero-corner">
+  {/* —— 居中信息区（匀称版式）—— */}
+  <div class="hero-info">
     <p class="hero-subtitle">iOS 开发者</p>
     <p class="hero-quote">「千磨万击还坚劲，任尔东西南北风。」</p>
     <a class="hero-cta" href="#identity">开始了解 ↓</a>
@@ -125,7 +125,7 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     max-width: 1000px;
     margin: 0 auto;
     padding: 0 24px;
-    perspective: 1150px;
+    perspective: 1000px;
     perspective-origin: 50% 18%;
   }
 
@@ -286,17 +286,16 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     }
   }
 
-  /* —— 右下角信息区（贴边，不浮动）—— */
-  .hero-corner {
-    position: absolute;
-    right: clamp(20px, 6vw, 88px);
-    bottom: 74px;
+  /* —— 居中信息区（匀称版式）—— */
+  .hero-info {
+    position: relative;
     z-index: 10;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     gap: 10px;
-    text-align: right;
+    text-align: center;
+    margin-top: 20px;
     animation: rise-in 0.9s var(--ease-out) 0.3s both;
   }
 
@@ -338,11 +337,9 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
   }
 
   @media (max-width: 760px) {
-    .hero-corner {
-      position: static;
-      margin: 26px auto 0;
-      align-items: center;
-      text-align: center;
+    .hero-info {
+      margin-top: 16px;
+      padding: 0 20px;
     }
     .wall-grid {
       grid-template-columns: repeat(3, 1fr);
@@ -388,6 +385,7 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
       const tile = cell.querySelector('.tile');
       return {
         el: tile,
+        pillar: cell.querySelector('.pillar'),
         img: +tile.dataset.img,
         col: i % 6,
         row: Math.floor(i / 6),
@@ -419,8 +417,9 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
 
     if (reduce) return;
 
-    // 海洋波浪主循环
-    const LIFT = 34; // 图片被推起的高度（px）
+    // 海洋波浪主循环：波峰处的图片被立方体柱身沿 Z 轴推出来
+    const LIFT = 22; // 上升分量（px）
+    const Z_POP = 130; // Z 轴推出分量（px，透视放大产生立体感）
     const WAVE_T = 2400; // 一个波推进的周期（ms）
     const WAVE_K = 1.5; // 同屏波数（少而宽：波峰覆盖相邻几格）
     const t0 = performance.now();
@@ -431,8 +430,10 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
         const ph = (s.col / 5) * WAVE_K * Math.PI - (t / WAVE_T) * Math.PI * 2 + s.row * 0.5;
         let wave = Math.sin(ph);
         wave = Math.sign(wave) * Math.pow(Math.abs(wave), 1.5); // 稍宽的峰：相邻一起升
-        const k = Math.max(0, wave); // 0 静止 .. 1 推到最高
-        s.el.style.transform = `translateY(${(-k * LIFT).toFixed(2)}px)`;
+        const k = Math.max(0, wave); // 0 静止 .. 1 推到最外
+        // 柱身先伸出（一半行程），图片被顶在柱头推得更远——托举关系可见
+        s.pillar.style.transform = `translateZ(${(k * Z_POP * 0.5).toFixed(2)}px)`;
+        s.el.style.transform = `translate3d(0, ${(-k * LIFT).toFixed(2)}px, ${(k * Z_POP).toFixed(2)}px)`;
         s.el.style.zIndex = String(Math.round(100 + k * 60));
         s.el.style.filter = `brightness(${(0.92 + k * 0.16).toFixed(3)})`;
       }
