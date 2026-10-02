@@ -1,26 +1,26 @@
 /* ============================================================
    Loky 个人网站 — 全局样式
-   视觉方向：淡紫晨光（格里菲斯水彩）+ 朱红点缀（日轮/烙印）
-   灵感：烙印战士 / 进击的巨人 / MEGALO BOX / 鬼灭之刃
+   视觉方向：深蓝夜幕（未来风）→ 顺页面滚动渐变为紫，
+   终端绿（黑客帝国）作为唯一强调色。
    所有颜色集中在 :root 变量中。
    ============================================================ */
 
 :root {
-  /* —— 淡紫主题 —— */
-  --bg: #ece5f6;
-  --bg-elevated: #ffffff;
-  --bg-raised: #f6f2fb;
-  --text: #2b2433;
-  --text-secondary: #6d6479;
-  --text-tertiary: #9d94ab;
-  --accent: #c73a2b;            /* 日轮朱红 */
-  --accent-deep: #9c2418;
-  --accent-soft: rgba(199, 58, 43, 0.1);
-  --accent-2: #7b5cd6;          /* 紫晕 */
-  --accent-2-soft: rgba(123, 92, 214, 0.12);
-  --border: rgba(43, 36, 51, 0.1);
-  --shadow-card: 0 10px 30px rgba(93, 70, 140, 0.12);
-  --shadow-card-hover: 0 22px 50px rgba(93, 70, 140, 0.22);
+  /* —— 深蓝主题 —— */
+  --bg: #070d1c;
+  --bg-elevated: #0e1730;
+  --bg-raised: #14203f;
+  --text: #e8edf8;
+  --text-secondary: #a3aed0;
+  --text-tertiary: #67729a;
+  --accent: #00e08a;            /* 终端绿 */
+  --accent-deep: #00b26d;
+  --accent-soft: rgba(0, 224, 138, 0.12);
+  --accent-2: #8b7bf0;          /* 紫晕（页面后段） */
+  --accent-2-soft: rgba(139, 123, 240, 0.14);
+  --border: rgba(130, 160, 255, 0.14);
+  --shadow-card: 0 10px 30px rgba(0, 4, 18, 0.5);
+  --shadow-card-hover: 0 22px 50px rgba(0, 4, 18, 0.65);
 
   /* —— 字体 —— */
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
@@ -55,7 +55,15 @@ html.sidebar-open {
 
 body {
   font-family: var(--font-sans);
-  background: linear-gradient(180deg, #f3eefb 0%, #e8dff5 42%, #efe8f9 100%);
+  /* 深蓝为底，向下滚动渐渐过渡为紫 */
+  background: linear-gradient(
+    180deg,
+    #070d1c 0%,
+    #0a1128 24%,
+    #131040 48%,
+    #1e1548 72%,
+    #2a1c55 100%
+  );
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -122,7 +130,7 @@ img {
   height: 2px;
   margin-top: 20px;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent), rgba(199, 58, 43, 0));
+  background: linear-gradient(90deg, var(--accent), rgba(0, 224, 138, 0));
 }
 
 .panel-desc {
@@ -159,7 +167,7 @@ img {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--accent), rgba(199, 58, 43, 0));
+  background: linear-gradient(90deg, var(--accent), rgba(0, 224, 138, 0));
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.55s var(--ease-out);
@@ -168,7 +176,7 @@ img {
 .card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(199, 58, 43, 0.35);
+  border-color: rgba(0, 224, 138, 0.4);
 }
 
 .card:hover::before {
@@ -319,8 +327,8 @@ h3:active {
 }
 
 .prose pre {
-  background: #241c2b;
-  border: 1px solid rgba(43, 36, 51, 0.2);
+  background: #0b1226;
+  border: 1px solid rgba(130, 160, 255, 0.2);
   border-radius: 14px;
   padding: 18px 20px;
   overflow-x: auto;
