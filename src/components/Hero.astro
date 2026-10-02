@@ -3,9 +3,9 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import '@fontsource/unifrakturcook/700.css';
 
-// 照片墙：12 个格位各坐一个实心立方体（照片是它的脸），
-// 组成方块网格；海浪一波接一波扫过时，波峰处的立方体
-// 沿斜 Z 轴向上抽出，周围立方体保持静止
+// 照片墙：无缝相连的图片墙（12 格），底下是立方体柱身。
+// 海浪一波接一波扫过时，波峰处的照片被底下的立方体向上推起，
+// 露出柱身——"立方体推着图片走"；相邻照片一起升降、连成一片。
 const mods = import.meta.glob<{ default: ImageMetadata }>('../assets/wall/*.jpg', {
   eager: true,
 });
@@ -29,7 +29,6 @@ const wallData = JSON.stringify({
   captions: tiles.map((t) => t.caption),
 });
 
-// 12 个格位各分配一张图（10 图循环，重复的两张分排在远端）
 const cellImages = Array.from({ length: 12 }, (_, i) => {
   const idx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 3][i];
   return { tile: tiles[idx], imgIndex: idx };
@@ -40,36 +39,25 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
   <div class="hero-glow-a" aria-hidden="true"></div>
   <div class="hero-glow-b" aria-hidden="true"></div>
 
-  {/* —— 方块网格海：12 个实心立方体 —— */}
+  {/* —— 相连的图片墙：底下是立方体柱身 —— */}
   <div class="wall-tilt">
     <div class="wall-plane">
       <div class="grid-surface" aria-hidden="true"></div>
       <div class="wall-grid">
         {
           cellImages.map((cell, i) => (
-            <div class="cell" data-slot={i}>
-              <div class="cube-pos" data-img={cell.imgIndex}>
-                <div class="cube" data-slot={i}>
-                  <div class="face face-top" />
-                  <div class="face face-right" />
-                  <figure class="face face-front">
-                    <div class="photo">
-                      <Image
-                        src={cell.tile.src}
-                        alt={cell.tile.alt}
-                        width={560}
-                        format="webp"
-                        quality={78}
-                        loading={i < 6 ? 'eager' : 'lazy'}
-                      />
-                      <figcaption>{cell.tile.caption}</figcaption>
-                    </div>
-                    <div class="cube-body">
-                      <i class="body-mark" aria-hidden="true" />
-                    </div>
-                  </figure>
-                </div>
-                <div class="cube-shadow" aria-hidden="true" />
+            <div class="cell">
+              <div class="pillar" aria-hidden="true" />
+              <div class="tile" data-img={cell.imgIndex}>
+                <Image
+                  src={cell.tile.src}
+                  alt={cell.tile.alt}
+                  width={560}
+                  format="webp"
+                  quality={78}
+                  loading={i < 6 ? 'eager' : 'lazy'}
+                />
+                <figcaption>{cell.tile.caption}</figcaption>
               </div>
             </div>
           ))
@@ -130,7 +118,7 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
   }
 
   /* ============================================================
-     方块网格海：每个格位一个实心立方体
+     相连的图片墙：无缝网格，立方体柱身在图片底下
      ============================================================ */
   .wall-tilt {
     position: relative;
@@ -143,7 +131,7 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
 
   .wall-plane {
     position: relative;
-    transform: rotateX(24deg);
+    transform: rotateX(18deg);
     transform-style: preserve-3d;
   }
 
@@ -162,76 +150,49 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     mask-image: radial-gradient(ellipse at center, #000 52%, transparent 98%);
   }
 
+  /* 无缝：图片之间没有间隙，静止时连成一整面墙 */
   .wall-grid {
     position: relative;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 20px;
+    gap: 0;
+    outline: 1px solid rgba(190, 160, 255, 0.3);
+    box-shadow: 0 30px 60px rgba(4, 0, 18, 0.5);
   }
 
-  /* 格位：立方体的"插座"，立方体升起后留下空腔 */
   .cell {
     position: relative;
-    aspect-ratio: 1 / 1.32;
-    border: 1.5px solid rgba(190, 160, 255, 0.26);
-    border-radius: 12px;
+    aspect-ratio: 1;
+    overflow: visible;
+  }
+
+  /* 立方体柱身：平时藏在图片正后方，
+     图片被推起时露出来——"立方体推着图片走" */
+  .pillar {
+    position: absolute;
+    inset: -30px 0 0 0;
     background:
-      radial-gradient(ellipse at 50% 60%, rgba(90, 50, 170, 0.18), transparent 70%),
-      rgba(10, 5, 24, 0.45);
+      linear-gradient(180deg, #33205c 0%, #1c1136 60%, #120a24 100%);
+    border-left: 1px solid rgba(190, 160, 255, 0.2);
+    border-right: 1px solid rgba(190, 160, 255, 0.2);
+    box-shadow: inset 0 14px 20px rgba(6, 2, 18, 0.55);
   }
 
-  .cube-pos {
+  .tile {
     position: absolute;
-    inset: 4% 4%;
-    opacity: 0;
-    transform-style: preserve-3d;
-    will-change: transform;
-  }
-
-  .wall-grid[data-ready] .cube-pos {
-    opacity: 1;
-  }
-
-  .cube {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    will-change: transform;
-  }
-
-  .face {
-    position: absolute;
-  }
-
-  /* 正面 = 立方体的脸：上 74% 照片 + 下 26% 立方体身 */
-  .face-front {
     inset: 0;
-    display: flex;
-    flex-direction: column;
-    border-radius: 12px;
     overflow: hidden;
-    background: #170f2e;
-    border: 1.5px solid rgba(200, 170, 255, 0.45);
-    box-shadow: 0 24px 48px rgba(4, 0, 18, 0.55);
-    backface-visibility: hidden;
-    cursor: pointer;
+    will-change: transform;
   }
 
-  .photo {
-    position: relative;
-    height: 74%;
-    overflow: hidden;
-  }
-
-  .photo img {
+  .tile img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
 
-  .photo figcaption {
+  .tile figcaption {
     position: absolute;
     inset: auto 0 0 0;
     padding: 26px 10px 9px;
@@ -245,64 +206,9 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
   }
 
-  .photo:hover figcaption {
+  .tile:hover figcaption {
     opacity: 1;
     transform: none;
-  }
-
-  /* 立方体身：实心、描边清晰，撑在照片底下 */
-  .cube-body {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(180deg, #2b1c50 0%, #170e30 100%);
-    border-top: 1.5px solid rgba(200, 170, 255, 0.4);
-  }
-
-  .body-mark {
-    width: 26%;
-    height: 4px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, rgba(255, 138, 26, 0.35), #ff8c1a, rgba(255, 138, 26, 0.35));
-  }
-
-  /* 顶面：立方体厚度（受光更亮） */
-  .face-top {
-    left: 2%;
-    width: 96%;
-    height: 20px;
-    bottom: 100%;
-    transform-origin: 50% 100%;
-    transform: rotateX(90deg);
-    background: linear-gradient(180deg, #55408c, #2c1c54);
-    border: 1px solid rgba(200, 170, 255, 0.4);
-    border-radius: 5px 5px 0 0;
-  }
-
-  /* 右侧面：立方体厚度（背光更暗） */
-  .face-right {
-    top: 2%;
-    height: 96%;
-    width: 20px;
-    left: 100%;
-    transform-origin: 0% 50%;
-    transform: rotateY(90deg);
-    background: linear-gradient(90deg, #261744, #100926);
-    border: 1px solid rgba(200, 170, 255, 0.24);
-    border-radius: 0 5px 5px 0;
-  }
-
-  /* 海面投影 */
-  .cube-shadow {
-    position: absolute;
-    left: 8%;
-    right: 8%;
-    top: 103%;
-    height: 14px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(4, 0, 16, 0.75), transparent 70%);
-    filter: blur(3px);
   }
 
   /* 过渡雾带：海面沉入背景，LOKY 贴在其上 */
@@ -440,7 +346,6 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     }
     .wall-grid {
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
     }
     .grid-surface {
       inset: -26px -30px;
@@ -448,28 +353,20 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     }
   }
 
-  /* 无 JS 环境：静态方块网格 */
+  /* 无 JS 环境：静态相连图片墙 */
   @media (scripting: none) {
-    .cube-pos {
-      opacity: 1;
+    .tile {
       transform: none !important;
-    }
-    .cube {
-      transform: none !important;
-    }
-    .face-top,
-    .face-right {
-      display: none;
     }
   }
 </style>
 
 <script>
-  // 方块网格海：12 个实心立方体全部常驻格位
-  // - 海浪为单一行进波（相位=xn*K - t/T，尖峰化），一波接一波从左向右扫过
-  // - 波峰过境时，所在格位的立方体沿斜 Z 轴向上"抽出"，升出插座位
-  //   （身下的格位空腔随之露出），周围立方体纹丝不动
-  // - 波谷时落回插座位，与网格齐平
+  // 海浪活塞：图片连成一整面无缝的墙，底下是立方体柱身
+  // - 行进波从左向右扫过，波峰处的图片被底下的柱身向上推起，
+  //   露出柱身——"立方体推着图片走"
+  // - 波峰覆盖相邻 2-3 格，相邻图片一起升降、连成一片
+  // - 其余图片纹丝不动
   const initWaveWall = () => {
     const grid = document.querySelector('.wall-grid');
     const dataEl = document.querySelector('[data-wall-data]');
@@ -488,21 +385,13 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     });
 
     const st = cells.map((cell, i) => {
-      const pos = cell.querySelector('.cube-pos');
+      const tile = cell.querySelector('.tile');
       return {
-        el: pos.querySelector('.cube'),
-        pos,
-        shadow: pos.querySelector('.cube-shadow'),
-        img: +pos.dataset.img,
-        j: i * 0.11,
-        xn: 0,
-        w: 0,
-        x: 0,
-        y: 0,
-        tx: 0,
-        ty: 0,
-        cx: 0,
-        cy: 0,
+        el: tile,
+        img: +tile.dataset.img,
+        col: i % 6,
+        row: Math.floor(i / 6),
+        j: (i % 6) * 0.07,
       };
     });
 
@@ -520,73 +409,38 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
       return bag.shift();
     };
 
-    const place = () => {
-      st.forEach((s) => {
-        s.xn =
-          cells.length > 0 ? (st.indexOf(s) % 6) / Math.max(1, cells.length / 2 - 1) : 0;
-      });
-      grid.dataset.ready = '1';
-    };
-    place();
+    grid.dataset.ready = '1';
 
-    // 入场：错峰浮现
-    st.forEach((s, i) => {
-      s.el.animate(
-        [{ opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0)' }],
-        { duration: 650, delay: 60 + i * 70, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }
-      );
-    });
+    // 入场：整面墙一起浮现
+    grid.animate(
+      [{ opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0)' }],
+      { duration: 800, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }
+    );
 
     if (reduce) return;
 
-    // 指针倾斜
-    st.forEach((s) => {
-      const face = s.el.querySelector('.face-front');
-      face.addEventListener('pointermove', (e) => {
-        const r = face.getBoundingClientRect();
-        s.tx = ((e.clientY - r.top) / r.height - 0.5) * 9;
-        s.ty = ((e.clientX - r.left) / r.width - 0.5) * 11;
-      });
-      face.addEventListener('pointerleave', () => {
-        s.tx = 0;
-        s.ty = 0;
-      });
-    });
-
-    // 海洋波浪主循环：波峰扫过谁，谁升起，其余全部静止
-    const Z_AMP = 190; // 抽出高度（px，沿斜 Z 轴）
+    // 海洋波浪主循环
+    const LIFT = 34; // 图片被推起的高度（px）
     const WAVE_T = 2400; // 一个波推进的周期（ms）
-    const WAVE_K = 2.3; // 同屏波数（多为窄峰：一次基本只抬一格）
+    const WAVE_K = 1.5; // 同屏波数（少而宽：波峰覆盖相邻几格）
     const t0 = performance.now();
     const tick = (now) => {
       const t = now - t0;
-      for (let i = 0; i < st.length; i++) {
-        const s = st[i];
-        const col = i % 6;
-        const row = Math.floor(i / 6);
-        const ph = (col / 5) * WAVE_K * Math.PI - (t / WAVE_T) * Math.PI * 2 + row * 0.55 + s.j;
+      for (const s of st) {
+        // 行进波：相位随列位置偏移，波峰从左向右推进
+        const ph = (s.col / 5) * WAVE_K * Math.PI - (t / WAVE_T) * Math.PI * 2 + s.row * 0.5;
         let wave = Math.sin(ph);
-        wave = Math.sign(wave) * Math.pow(Math.abs(wave), 3); // 窄峰：抽动干脆
-        const k = Math.max(0, wave);
-        const z = k * Z_AMP;
-        s.cx += (s.tx - s.cx) * 0.12;
-        s.cy += (s.ty - s.cy) * 0.12;
-        const rx = -10 + s.cx - k * 6; // 升起时轻微后仰
-        const ry = -13 + s.cy;
-        s.pos.style.transform = `translate3d(0, 0, ${z}px)`;
-        s.pos.style.zIndex = String(Math.round(300 + z));
-        s.el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-        s.el.style.opacity = (0.8 + k * 0.2).toFixed(3);
-        if (s.shadow) {
-          s.shadow.style.opacity = (0.5 - k * 0.25).toFixed(3);
-          s.shadow.style.transform = `scale(${(1 - k * 0.18).toFixed(3)})`;
-        }
+        wave = Math.sign(wave) * Math.pow(Math.abs(wave), 1.5); // 稍宽的峰：相邻一起升
+        const k = Math.max(0, wave); // 0 静止 .. 1 推到最高
+        s.el.style.transform = `translateY(${(-k * LIFT).toFixed(2)}px)`;
+        s.el.style.zIndex = String(Math.round(100 + k * 60));
+        s.el.style.filter = `brightness(${(0.92 + k * 0.16).toFixed(3)})`;
       }
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
 
-    // 轮播：随机一块淡出换图（图片在 12 个立方体间循环）
+    // 轮播：随机一块淡出换图（图片在 12 格间循环）
     setInterval(() => {
       const s = st[Math.floor(Math.random() * st.length)];
       const ni = nextImg();
