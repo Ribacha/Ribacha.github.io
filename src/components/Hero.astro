@@ -29,9 +29,24 @@ const wallData = JSON.stringify({
   captions: tiles.map((t) => t.caption),
 });
 
+// 相邻防重算法：10 张图填 12 格，重复的 2 张必须放在
+// 与原图（含斜对角）不相邻的格位
+const COLS = 6;
+const isAdjacent = (a: number, b: number) =>
+  Math.abs((a % COLS) - (b % COLS)) <= 1 &&
+  Math.abs(Math.floor(a / COLS) - Math.floor(b / COLS)) <= 1;
+
+const base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // 前 10 格：图 0-9 各一次
+// 第 11 格（索引 10）选一张与它的邻居（格 3/4/5/9）都不相邻的重复图
+const dupA = [0, 1, 2].find((c) => !isAdjacent(c, 10)) ?? 1; // 取其原图索引
+// 第 12 格（索引 11）同理，且不能与第 11 格相邻重复
+const dupB = [0, 1, 2, 3].find(
+  (c) => !isAdjacent(c, 11) && base[c] !== base[dupA]
+) ?? 3;
+
 const cellImages = Array.from({ length: 12 }, (_, i) => {
-  const idx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 3][i];
-  return { tile: tiles[idx], imgIndex: idx };
+  const imgIndex = i < 10 ? base[i] : i === 10 ? base[dupA] : base[dupB];
+  return { tile: tiles[imgIndex], imgIndex };
 });
 ---
 
@@ -64,11 +79,8 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
         }
       </div>
     </div>
-    {/* 四边磨砂渐变：高级感的柔化边缘 */}
-    <div class="frost frost-top" aria-hidden="true"></div>
+    {/* 底部磨砂玻璃：只在与 LOKY 文字衔接的这一段 */}
     <div class="frost frost-bottom" aria-hidden="true"></div>
-    <div class="frost frost-left" aria-hidden="true"></div>
-    <div class="frost frost-right" aria-hidden="true"></div>
   </div>
   <script type="application/json" data-wall-data set:html={wallData} />
 
@@ -217,7 +229,8 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
   }
 
   /* ============================================================
-     四边磨砂渐变：backdrop 毛玻璃 + 渐变遮罩，柔化墙的边缘
+     底部磨砂玻璃：只在与 LOKY 文字衔接的一段，
+     低透明度 + 细高光边，玻璃般的透明质感
      ============================================================ */
   .frost {
     position: absolute;
@@ -225,54 +238,23 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     pointer-events: none;
   }
 
-  .frost-top {
-    left: 0;
-    right: 0;
-    top: -8px;
-    height: 96px;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
-    mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
-  }
-
-  /* 底部磨砂带：墙与 LOKY 的衔接处 */
   .frost-bottom {
-    left: 0;
-    right: 0;
+    left: -2px;
+    right: -2px;
     bottom: -46px;
-    height: 260px;
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
+    height: 250px;
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    backdrop-filter: blur(18px) saturate(1.25);
     background: linear-gradient(
       180deg,
-      rgba(21, 13, 38, 0) 0%,
-      rgba(21, 13, 38, 0.4) 55%,
-      rgba(21, 13, 38, 0.8) 100%
+      rgba(36, 22, 66, 0) 0%,
+      rgba(36, 22, 66, 0.22) 48%,
+      rgba(21, 13, 38, 0.66) 100%
     );
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 100%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 100%);
-  }
-
-  .frost-left,
-  .frost-right {
-    top: 0;
-    bottom: 0;
-    width: clamp(70px, 9vw, 150px);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-  }
-
-  .frost-left {
-    left: -2px;
-    -webkit-mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
-    mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
-  }
-
-  .frost-right {
-    right: -2px;
-    -webkit-mask-image: linear-gradient(270deg, #000 0%, transparent 100%);
-    mask-image: linear-gradient(270deg, #000 0%, transparent 100%);
+    /* 玻璃上缘的高光细线 */
+    border-top: 1px solid rgba(200, 175, 255, 0.22);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 55%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 55%, #000 100%);
   }
 
   /* ============================================================
@@ -439,18 +421,39 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
       };
     });
 
+    // 相邻防重（含斜对角）：换图时只选与该格 8 邻居都不同的图
+    const COLS = 6;
+    const neighborsOf = (i) => {
+      const c = i % COLS;
+      const r = Math.floor(i / COLS);
+      const out = [];
+      for (const [dc, dr] of [
+        [-1, -1], [0, -1], [1, -1],
+        [-1, 0], [1, 0],
+        [-1, 1], [0, 1], [1, 1],
+      ]) {
+        const nc = c + dc;
+        const nr = r + dr;
+        if (nc >= 0 && nc < COLS && nr >= 0 && nr < 2) out.push(nr * COLS + nc);
+      }
+      return out;
+    };
+
     let bag = [];
-    const nextImg = () => {
+    const pickImgFor = (cellIdx) => {
       if (!bag.length) {
         bag = data.urls.map((_, i) => i);
         for (let k = bag.length - 1; k > 0; k--) {
           const r = Math.floor(Math.random() * (k + 1));
           [bag[k], bag[r]] = [bag[r], bag[k]];
         }
+        // 优先派发当前不在墙上展示的图
         const shown = new Set(st.map((s) => s.img));
         bag.sort((a, b) => (shown.has(a) ? 1 : 0) - (shown.has(b) ? 1 : 0));
       }
-      return bag.shift();
+      const neigh = new Set(neighborsOf(cellIdx).map((n) => st[n].img));
+      const idx = bag.findIndex((im) => !neigh.has(im));
+      return bag.splice(idx === -1 ? 0 : idx, 1)[0];
     };
 
     grid.dataset.ready = '1';
@@ -487,10 +490,11 @@ const cellImages = Array.from({ length: 12 }, (_, i) => {
     };
     requestAnimationFrame(tick);
 
-    // 轮播：随机一块淡出换图（图片在 12 格间循环）
+    // 轮播：随机一块淡出换图（算法保证相邻含斜对角不同图）
     setInterval(() => {
-      const s = st[Math.floor(Math.random() * st.length)];
-      const ni = nextImg();
+      const cellIdx = Math.floor(Math.random() * st.length);
+      const s = st[cellIdx];
+      const ni = pickImgFor(cellIdx);
       s.el
         .animate(
           [{ opacity: 1 }, { opacity: 0, filter: 'blur(6px)' }],
