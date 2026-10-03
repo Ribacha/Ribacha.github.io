@@ -11,7 +11,8 @@ const hobbies = [
   {
     no: '贰',
     title: '咖啡',
-    text: '永远差一杯。',
+    text: '请我喝一杯咖啡好吗？（最好是抹茶星冰乐超大杯呦）',
+    href: '/coffee/',
   },
   {
     no: '叁',
@@ -33,17 +34,54 @@ const hobbies = [
     <p class="panel-desc reveal" style="--d:2">不写代码的时候，大概在干这些事。</p>
     <div class="card-grid">
       {
-        hobbies.map((h, i) => (
-          <article class="card reveal" style={`--d:${i + 1}`}>
-            <div class="card-top">
-              <span class="card-no">{h.no}</span>
-              <span class="card-line" aria-hidden="true" />
-            </div>
-            <h3 class="card-title">{h.title}</h3>
-            <p class="card-text">{h.text}</p>
-          </article>
-        ))
+        hobbies.map((h, i) => {
+          const inner = (
+            <>
+              {h.href && (
+                <span class="card-go" aria-hidden="true">
+                  ↗
+                </span>
+              )}
+              <div class="card-top">
+                <span class="card-no">{h.no}</span>
+                <span class="card-line" aria-hidden="true" />
+              </div>
+              <h3 class="card-title">{h.title}</h3>
+              <p class="card-text">{h.text}</p>
+            </>
+          );
+          return h.href ? (
+            <a class="card card-link reveal" style={`--d:${i + 1}`} href={h.href}>
+              {inner}
+            </a>
+          ) : (
+            <article class="card reveal" style={`--d:${i + 1}`}>
+              {inner}
+            </article>
+          );
+        })
       }
     </div>
   </div>
 </section>
+
+<style>
+  /* 可点击的卡片（如咖啡 → 请我喝咖啡）：右上角小箭头 */
+  .card-link {
+    color: inherit;
+  }
+
+  .card-go {
+    position: absolute;
+    top: 22px;
+    right: 24px;
+    font-size: 15px;
+    color: var(--text-tertiary);
+    transition: transform 0.35s var(--ease-out), color 0.35s ease;
+  }
+
+  .card-link:hover .card-go {
+    transform: translate(3px, -3px);
+    color: var(--accent);
+  }
+</style>

@@ -8,11 +8,12 @@ const navItems = [
   { href: '/about/', label: '关于', en: 'About', key: 'about' },
   { href: '/uses/', label: '装备', en: 'Uses', key: 'uses' },
   { href: '/links/', label: '友链', en: 'Links', key: 'links' },
+  { href: '/coffee/', label: '咖啡', en: 'Coffee', key: 'coffee' },
 ];
 
 const path = Astro.url.pathname;
 const activeKey =
-  ['blog', 'projects', 'about', 'uses', 'links'].find((k) =>
+  ['blog', 'projects', 'about', 'uses', 'links', 'coffee'].find((k) =>
     path.startsWith(`/${k === 'blog' ? 'blog' : k}`)
   ) ?? '';
 ---

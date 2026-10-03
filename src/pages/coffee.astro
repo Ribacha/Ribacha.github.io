@@ -1,0 +1,165 @@
+---
+import Base from '../layouts/Base.astro';
+import Emblem from '../components/Emblem.astro';
+import { Image } from 'astro:assets';
+import wechatQr from '../assets/coffee/wechat-qr.jpg';
+import alipayQr from '../assets/coffee/alipay-qr.jpg';
+
+// 请我喝咖啡（二级界面）：微信 / 支付宝收款码
+// 点击卡片可在新标签页打开原尺寸大图，方便保存或另一台设备扫码
+const channels = [
+  {
+    name: '微信支付',
+    en: 'WECHAT PAY',
+    hint: '打开微信 [扫一扫]',
+    src: wechatQr,
+    cls: 'wechat',
+  },
+  {
+    name: '支付宝',
+    en: 'ALIPAY',
+    hint: '打开支付宝 [扫一扫]',
+    src: alipayQr,
+    cls: 'alipay',
+  },
+];
+---
+
+<Base
+  title="请我喝咖啡 · Loky"
+  description="请 Loky 喝一杯咖啡——最好是抹茶星冰乐超大杯呦。"
+  secondary={{ label: 'Coffee · 请我喝咖啡', back: { href: '/', label: '返回首页' } }}
+>
+  <section class="panel coffee-head">
+    <div class="container coffee-container">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Coffee · 请我喝咖啡</p>
+      <h1 class="panel-title reveal" style="--d:1">请我喝一杯咖啡好吗？</h1>
+      <p class="panel-desc reveal" style="--d:2">最好是抹茶星冰乐超大杯呦。</p>
+
+      <div class="qr-grid">
+        {
+          channels.map((c, i) => (
+            <a
+              class="qr-card card reveal"
+              style={`--d:${i + 3}`}
+              href={c.src.src}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`用${c.name}请我喝咖啡（打开大图扫码）`}
+            >
+              <Image
+                src={c.src}
+                alt={`${c.name}收款码`}
+                width={520}
+                format="webp"
+                quality={88}
+                loading="lazy"
+                class="qr-img"
+              />
+              <span class="qr-meta">
+                <i class={`qr-dot ${c.cls}`} aria-hidden="true" />
+                <span class="qr-name">
+                  {c.name}
+                  <small>{c.en}</small>
+                </span>
+                <span class="qr-hint">{c.hint} ↗</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+
+      <p class="coffee-note reveal" style="--d:5">
+        手机长按识别或截图扫码都可以——谢谢你的一杯抹茶星冰乐。
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .coffee-head {
+    min-height: 70vh;
+  }
+
+  .coffee-container {
+    max-width: 880px;
+  }
+
+  .qr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 360px));
+    gap: 26px;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  .qr-card {
+    display: block;
+    padding: 18px 18px 14px;
+  }
+
+  .qr-img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+  }
+
+  .qr-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 13px;
+  }
+
+  .qr-dot {
+    width: 9px;
+    height: 9px;
+    flex: none;
+    clip-path: polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px);
+  }
+
+  .qr-dot.wechat {
+    background: #07c160;
+    box-shadow: 0 0 8px rgba(7, 193, 96, 0.45);
+  }
+
+  .qr-dot.alipay {
+    background: #1677ff;
+    box-shadow: 0 0 8px rgba(22, 119, 255, 0.45);
+  }
+
+  .qr-name {
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+  }
+
+  .qr-name small {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--text-tertiary);
+    margin-left: 8px;
+  }
+
+  .qr-hint {
+    margin-left: auto;
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    transition: color 0.3s ease;
+  }
+
+  .qr-card:hover .qr-hint {
+    color: var(--accent);
+  }
+
+  .coffee-note {
+    margin-top: 38px;
+    font-size: 13.5px;
+    color: var(--text-tertiary);
+    border-top: 1px dashed var(--border);
+    padding-top: 16px;
+    max-width: 640px;
+  }
+</style>

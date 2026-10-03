@@ -31,7 +31,8 @@
    ├─ /projects/ 档案（项目完整档案卡）
    ├─ /about/    关于（简介 + 时间线 + Now）
    ├─ /uses/     装备（开发/效率/研究清单）
-   └─ /links/    友链（交换说明 + 占位）
+   ├─ /links/    友链（交换说明 + 占位）
+   └─ /coffee/   请我喝咖啡（微信/支付宝收款码；入口在兴趣板块咖啡卡）
 ```
 
 **导航职责分离**：左侧小字刻度导航（SectionRail）只管首页内部；右侧侧边栏只管二级界面入口。
@@ -80,12 +81,13 @@ src/
 │   └── (LokyMark.astro 已废弃删除；Skills.astro 已删除)
 ├── pages/
 │   ├── index.astro           # 首页
-│   ├── projects|about|uses|links.astro   # 四个二级界面
+│   ├── projects|about|uses|links|coffee.astro   # 五个二级界面
 │   └── blog/…                # 博客三级路由
 ├── content/blog/             # Obsidian 同步目标
 ├── lib/blog.ts               # 博客分类元数据
 ├── assets/wall/              # 照片墙图片（01-10）
-└── assets/eva/               # eva01.jpg（EVA-01 裁剪去水印）/ eva02.webp（EVA-02 抠底镜像透明）
+├── assets/eva/               # eva01.jpg（EVA-01 裁剪去水印）/ eva02.webp + parts/（EVA-02 部件）
+└── assets/coffee/            # wechat-qr / alipay-qr 收款码
 ```
 
 ---
