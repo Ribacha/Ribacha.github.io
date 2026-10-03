@@ -171,6 +171,29 @@ const back = secondary?.back ?? { href: '/', label: '返回首页' };
         els.forEach((el) => io.observe(el));
       };
       document.addEventListener('astro:page-load', initReveal);
+
+      // 二级界面「返回」链接：来过本站就真正后退（ViewTransitions 会原位恢复滚动，
+      // 从首页深处点进来的，返回时回到原视图而不是页顶）；直接打开本页（无来路）才走默认跳转
+      const initBackLink = () => {
+        const cur = location.pathname + location.search;
+        const curStored = sessionStorage.getItem('loky-cur-page');
+        if (curStored !== cur) {
+          sessionStorage.setItem('loky-prev-page', curStored ?? '');
+          sessionStorage.setItem('loky-cur-page', cur);
+        }
+
+        const back = document.querySelector('.sec-back');
+        if (!back || back.dataset.backBound) return;
+        back.dataset.backBound = '1';
+        back.addEventListener('click', (e) => {
+          if (sessionStorage.getItem('loky-prev-page')) {
+            e.preventDefault();
+            history.back();
+          }
+        });
+      };
+      document.addEventListener('astro:page-load', initBackLink);
+      initBackLink();
     </script>
   </body>
 </html>
