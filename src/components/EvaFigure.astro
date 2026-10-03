@@ -1,0 +1,213 @@
+---
+// EVA-02 侧身机甲位（项目板块，钉在视口最左侧的装饰）：
+// 沿机甲装甲接缝线手工拆成 12 个多边形部件（躯干/腰甲/大腿/小腿/足/双臂/头/双翼/小刀/碎片），
+// 滚动经过项目板块时按机械装配顺序逐件归位——躯干起头、小刀压轴，各部件沿自己的关节方向飞入。
+// 无封装、无 HUD：机甲以透明素材直接贴在页面上，与板块合二为一（允许左缘出血裁切）。
+// 进度由宿主板块（driver）驱动——机甲本体 sticky 跟随，自身位置不随滚动变化。
+interface Props {
+  /** 进度参照元素选择器（默认整个项目板块） */
+  driver?: string;
+}
+const { driver = '#projects' } = Astro.props;
+
+import eva02Whole from '../assets/eva/eva02.webp';
+
+// 部件清单：x/y/w/h 为占画布百分比，dx/dy/rot 为飞入方向与起始旋转
+// 顺序即装配顺序：躯干 → 腰甲 → 大腿 → 小腿 → 足 → 双臂 → 头 → 双翼 → 小刀 → 碎片
+const PARTS = [
+  { file: '00-torso.webp', x: 24.878, y: 18.182, w: 38.989, h: 46.583, dx: -52, dy: 18, rot: -5 },
+  { file: '01-waist.webp', x: 25.938, y: 56.552, w: 28.63, h: 15.737, dx: 0, dy: 56, rot: 6 },
+  { file: '02-thigh.webp', x: 14.519, y: 63.636, w: 42.251, h: 24.702, dx: -36, dy: 64, rot: -7 },
+  { file: '03-shin.webp', x: 18.923, y: 76.991, w: 38.254, h: 23.009, dx: 0, dy: 70, rot: 5 },
+  { file: '04-foot.webp', x: 56.117, y: 85.392, w: 35.481, h: 14.608, dx: 70, dy: 32, rot: 7 },
+  { file: '05-arm-proto.webp', x: 0.0, y: 23.072, w: 33.361, h: 50.345, dx: -84, dy: 10, rot: -9 },
+  { file: '06-arm-knife.webp', x: 55.628, y: 39.875, w: 19.086, h: 18.37, dx: 64, dy: 26, rot: 8 },
+  { file: '07-head.webp', x: 59.38, y: 22.069, w: 20.799, h: 25.517, dx: 16, dy: -64, rot: -6 },
+  { file: '08-wing-a.webp', x: 24.307, y: 0.0, w: 31.892, h: 27.649, dx: -48, dy: -58, rot: -8 },
+  { file: '09-wing-b.webp', x: 55.302, y: 7.524, w: 33.85, h: 14.608, dx: 54, dy: -48, rot: 7 },
+  { file: '10-knife.webp', x: 71.126, y: 55.047, w: 28.874, h: 6.959, dx: -88, dy: 8, rot: 4 },
+  { file: '11-debris.webp', x: 11.419, y: 18.495, w: 67.374, h: 63.072, dx: -30, dy: -40, rot: 10 },
+];
+
+const images = import.meta.glob<{ default: ImageMetadata }>('../assets/eva/parts/*.webp', {
+  eager: true,
+});
+const srcOf = (file: string) => images[`../assets/eva/parts/${file}`]?.default.src ?? '';
+---
+
+<div
+  class="eva-fig"
+  data-eva-figure
+  data-driver={driver}
+  data-state="standby"
+  role="img"
+  aria-label="EVA-02 弐号机：随滚动沿装甲接缝逐件重组的机甲"
+>
+  {/* 图纸衬底：装配期间显示淡色完整剪影，碎片朝它归位；装完成后淡出 */}
+  <img class="eva-fig-ghost" src={eva02Whole.src} alt="" aria-hidden="true" loading="lazy" />
+  {
+    PARTS.map((p, idx) => (
+      <img
+        class="eva-fig-part"
+        data-eva-fig-part
+        src={srcOf(p.file)}
+        alt=""
+        loading="eager"
+        style={`left:${p.x}%; top:${p.y}%; width:${p.w}%; height:${p.h}%; --pdx:${p.dx}; --pdy:${p.dy}; --prot:${p.rot}; --pi:${idx}`}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .eva-fig {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1226 / 1595;
+  }
+
+  /* 机甲身后的暗红辉光：贴在页面上的"存在感"，不是容器 */
+  .eva-fig::before {
+    content: '';
+    position: absolute;
+    inset: -6% -12%;
+    background: radial-gradient(circle at 46% 46%, rgba(255, 48, 48, 0.09), transparent 64%);
+    filter: blur(14px);
+    pointer-events: none;
+  }
+
+  /* 图纸衬底：只装配期间可见，随成型淡出 */
+  .eva-fig-ghost {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    filter: saturate(0.4) brightness(1.3);
+    transition: opacity 1.4s ease;
+    pointer-events: none;
+  }
+
+  .eva-fig.is-live[data-state='assembly'] .eva-fig-ghost {
+    opacity: 0.15;
+  }
+
+  .eva-fig-part {
+    position: absolute;
+    will-change: transform, opacity;
+  }
+
+  /* JS 接管后先清场，等待滚动重组；无 JS / 减少动态时保持完整机体 */
+  .eva-fig.is-live .eva-fig-part {
+    opacity: 0;
+  }
+
+  /* 落位脉冲：装饰形态只用一次亮度闪烁，不画边框 */
+  .eva-fig-part.is-locked {
+    animation: fig-lock 0.4s var(--ease-out);
+  }
+
+  @keyframes fig-lock {
+    0% {
+      filter: brightness(1.6) saturate(1.3);
+    }
+    100% {
+      filter: none;
+    }
+  }
+</style>
+
+<script>
+  // 滚动驱动的装配循环：
+  // - 进度 = 宿主板块在视口中的推进程度，可随滚动反向拆解
+  // - 部件按装配顺序错峰就位，各沿自己的关节方向飞入，轻微过冲模拟装甲"咔哒"锁定
+  const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+  const easeOutBack = (t: number) => {
+    const c1 = 0.9;
+    return 1 + (c1 + 1) * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  };
+
+  const initEvaFigure = () => {
+    const root = document.querySelector<HTMLElement>('[data-eva-figure]');
+    if (!root || root.dataset.figBound) return;
+    root.dataset.figBound = '1';
+
+    const driver = document.querySelector(root.dataset.driver || '#projects');
+    const els = [...root.querySelectorAll<HTMLElement>('[data-eva-fig-part]')];
+    if (!driver || els.length === 0) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const n = els.length;
+    const parts = els.map((el, i) => ({
+      el,
+      dx: parseFloat(el.style.getPropertyValue('--pdx') || '0'),
+      dy: parseFloat(el.style.getPropertyValue('--pdy') || '0'),
+      rot: parseFloat(el.style.getPropertyValue('--prot') || '0'),
+      // 顺序装配窗口：0.02 起步，最后一件 0.60 开始、1.0 前完成
+      start: 0.02 + (i / (n - 1)) * 0.58,
+      dur: 0.4,
+      locked: false,
+    }));
+
+    root.classList.add('is-live');
+
+    let cur = 0;
+    let raf = 0;
+
+    const apply = () => {
+      for (const p of parts) {
+        const t = clamp01((cur - p.start) / p.dur);
+        const e = easeOutBack(t);
+        p.el.style.opacity = String(Math.min(1, t * 2.4));
+        p.el.style.transform = `translate3d(${(p.dx * (1 - e)).toFixed(1)}px, ${
+          (p.dy * (1 - e)).toFixed(1)
+        }px, 0) rotate(${(p.rot * (1 - e)).toFixed(2)}deg)`;
+        if (t >= 1 && !p.locked) {
+          p.locked = true;
+          p.el.classList.add('is-locked');
+          window.setTimeout(() => p.el.classList.remove('is-locked'), 420);
+        } else if (t < 1) {
+          p.locked = false;
+        }
+      }
+      // 图纸衬底只在装配期间可见：standby / complete 都隐藏
+      root.dataset.state =
+        cur < 0.02 ? 'standby' : cur > 0.995 ? 'complete' : 'assembly';
+    };
+
+    const tick = () => {
+      const r = driver.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const target = clamp01((vh * 0.9 - r.top) / (r.height * 0.82));
+      cur += (target - cur) * 0.13;
+      if (Math.abs(target - cur) < 0.0015) cur = target;
+      apply();
+    };
+
+    const loop = () => {
+      tick();
+      raf = requestAnimationFrame(loop);
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      loop();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries[0]?.isIntersecting;
+        if (visible && !raf) {
+          raf = requestAnimationFrame(loop);
+        } else if (!visible && raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+      },
+      { rootMargin: '25% 0px 25% 0px' }
+    );
+    io.observe(root);
+  };
+
+  document.addEventListener('astro:page-load', initEvaFigure);
+</script>

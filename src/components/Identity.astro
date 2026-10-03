@@ -1,7 +1,8 @@
 ---
 import Emblem from './Emblem.astro';
+import EvaAssembly from './EvaAssembly.astro';
 
-// 个人身份面板：以 iOS 为基准，文案做减法
+// 个人身份面板：左侧文案卡片，右侧 EVA-01 组装机甲位（随滚动逐块组装）
 const cards = [
   {
     no: '01',
@@ -27,23 +28,65 @@ const cards = [
 ---
 
 <section id="identity" class="panel">
-  <div class="container">
-    <p class="panel-eyebrow reveal"><Emblem size={14} /> Identity · 个人身份</p>
-    <h2 class="panel-title reveal" style="--d:1">你好，我是 Loky</h2>
-    <p class="panel-desc reveal" style="--d:2">白天写 Objective-C，晚上研究底层，像磨刀一样磨自己。</p>
-    <div class="card-grid">
-      {
-        cards.map((card, i) => (
-          <article class="card reveal" style={`--d:${i + 1}`}>
-            <div class="card-top">
-              <span class="card-no">{card.no}</span>
-              <span class="card-line" aria-hidden="true" />
-            </div>
-            <h3 class="card-title">{card.title}</h3>
-            <p class="card-text">{card.text}</p>
-          </article>
-        ))
-      }
+  <div class="container identity-layout">
+    <div class="identity-copy">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Identity · 个人身份</p>
+      <h2 class="panel-title reveal" style="--d:1">你好，我是 Loky</h2>
+      <p class="panel-desc reveal" style="--d:2">白天写 Objective-C，晚上研究底层，像磨刀一样磨自己。</p>
+      <div class="card-grid identity-cards">
+        {
+          cards.map((card, i) => (
+            <article class="card reveal" style={`--d:${i + 2}`}>
+              <div class="card-top">
+                <span class="card-no">{card.no}</span>
+                <span class="card-line" aria-hidden="true" />
+              </div>
+              <h3 class="card-title">{card.title}</h3>
+              <p class="card-text">{card.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="identity-mecha reveal" style="--d:3">
+      <EvaAssembly />
     </div>
   </div>
 </section>
+
+<style>
+  .identity-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
+    gap: clamp(44px, 6vw, 88px);
+    align-items: center;
+  }
+
+  /* 左栏变窄后固定两列卡片 */
+  .identity-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 1240px) {
+    .identity-layout {
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+    }
+  }
+
+  @media (max-width: 980px) {
+    .identity-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .identity-mecha {
+      width: 100%;
+      max-width: 400px;
+      margin: 10px auto 0;
+    }
+
+    .identity-cards {
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    }
+  }
+</style>

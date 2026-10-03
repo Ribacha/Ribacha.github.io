@@ -1,5 +1,6 @@
 ---
 import Emblem from './Emblem.astro';
+import EvaFigure from './EvaFigure.astro';
 
 // 项目面板：三个精选项目（图标 + 可点击直达）
 // Spotify 官方风格图标（黑方块+绿圆+三道弧）、凪 App 图标（黑方块+紫字）、
@@ -33,11 +34,20 @@ const featured = [
 ];
 ---
 
-<section id="projects" class="panel">
-  <div class="container">
-    <p class="panel-eyebrow reveal"><Emblem size={14} /> Projects · 项目</p>
-    <h2 class="panel-title reveal" style="--d:1">做过的东西</h2>
-    <p class="panel-desc reveal" style="--d:2">三个代表作，点击图标直达仓库。</p>
+<section id="projects" class="panel projects-panel">
+  {/* 左缘机甲位：钉死视口最左侧的装饰，允许出血裁切；滚动经过时沿接缝线重组 */}
+  <div class="projects-figure-pin">
+    <div class="projects-figure-sticky">
+      <EvaFigure driver="#projects" />
+    </div>
+  </div>
+
+  <div class="container projects-layout">
+    <div class="projects-head">
+      <p class="panel-eyebrow reveal"><Emblem size={14} /> Projects · 项目</p>
+      <h2 class="panel-title reveal" style="--d:1">做过的东西</h2>
+      <p class="panel-desc reveal" style="--d:2">三个代表作，点击图标直达仓库。</p>
+    </div>
 
     <div class="featured-grid">
       {
@@ -120,10 +130,74 @@ const featured = [
 </section>
 
 <style>
+  /* —— 左缘机甲装饰 + 内容让位 —— */
+  .projects-panel {
+    /* 装饰定义为面板级变量；overflow-x: clip 裁掉出血但不产生滚动容器（保住 sticky） */
+    --fig-h: min(72vh, 660px);
+    --fig-w: calc(var(--fig-h) * 0.769);
+    position: relative;
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  .projects-figure-pin {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--fig-w);
+    pointer-events: none;
+    z-index: 0;
+    /* 朝内容方向渐隐溶解，机甲与页面融合而非截断（黑色段需覆盖到头部右缘 ~79%） */
+    -webkit-mask-image: linear-gradient(90deg, #000 80%, rgba(0, 0, 0, 0.45) 92%, transparent 99%);
+    mask-image: linear-gradient(90deg, #000 80%, rgba(0, 0, 0, 0.45) 92%, transparent 99%);
+  }
+
+  .projects-figure-sticky {
+    position: sticky;
+    top: calc(50vh - var(--fig-h) / 2);
+    width: 108%;
+    margin-left: -8%; /* 向左出血：贴死屏幕边缘，只裁掉一点边缘 */
+  }
+
+  .projects-layout {
+    position: relative;
+    z-index: 1;
+    /* 内容让位：避开左缘机甲（考虑容器居中后的剩余边距） */
+    padding-left: max(
+      24px,
+      calc(var(--fig-w) * 0.86 + 40px - max((100vw - var(--content-width)) / 2, 0px))
+    );
+  }
+
   .featured-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  @media (max-width: 960px) {
+    .projects-panel {
+      overflow-x: visible;
+    }
+
+    .projects-figure-pin {
+      position: static;
+      width: auto;
+    }
+
+    .projects-figure-sticky {
+      position: static;
+      width: min(320px, 88%);
+      margin: 4px auto 30px;
+    }
+
+    .projects-layout {
+      padding-left: 24px;
+      display: grid;
+      grid-template-areas:
+        'head'
+        'cards';
+    }
   }
 
   .featured-card {

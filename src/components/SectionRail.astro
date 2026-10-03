@@ -6,7 +6,6 @@ const items = [
   { href: '/#hero', label: '首页', key: 'home' },
   { href: '/#identity', label: '身份', key: 'identity' },
   { href: '/#projects', label: '项目', key: 'projects' },
-  { href: '/#skills', label: '技能', key: 'skills' },
   { href: '/#hobbies', label: '喜好', key: 'hobbies' },
   { href: '/#contact', label: '联系', key: 'contact' },
 ];
@@ -42,6 +41,8 @@ const items = [
     color: var(--text-tertiary);
     opacity: 0.72;
     transition: color 0.35s ease, opacity 0.35s ease;
+    /* 深色描影：项目板块的左缘机甲是装饰，导航小字压在其上时保持可读 */
+    text-shadow: 0 0 8px rgba(10, 4, 30, 0.9), 0 1px 4px rgba(10, 4, 30, 0.95);
   }
 
   .tick {
@@ -98,7 +99,7 @@ const items = [
     if (!items.length || items[0].dataset.spyBound) return;
     items.forEach((el) => (el.dataset.spyBound = '1'));
 
-    const ids = ['hero', 'identity', 'projects', 'skills', 'hobbies', 'contact'];
+    const ids = ['hero', 'identity', 'projects', 'hobbies', 'contact'];
     const sections = ids
       .map((id) => ({ id, key: id === 'hero' ? 'home' : id, el: document.getElementById(id) }))
       .filter((s) => s.el);
