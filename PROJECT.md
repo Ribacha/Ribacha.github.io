@@ -1,6 +1,6 @@
 # Loky 个人网站 · 项目文档
 
-> 最后更新：2026-10-03
+> 最后更新：2026-10-09
 > 本文档是项目的完整交接手册：架构、设计规范、部署方式、待办事项。
 > 新会话/新协作者从这里开始。
 
@@ -10,10 +10,10 @@
 
 | 项 | 内容 |
 |---|---|
-| 站点 | Loky 的个人网站（品牌名 **Loky**，GitHub 账号 **Ribacha**） |
+| 站点 | Loky 的个人网站（品牌名 **Loky**，GitHub 账号 **Ribacha**，备案主体付凯璇） |
 | 技术栈 | **Astro 5** 静态站（Node 20+，`npm install` / `npm run dev` / `npm run build`） |
-| 域名 | **lokykkxx.cn**（阿里云注册，实名已完成；**无需备案即可指向海外托管**） |
-| 托管 | 双通道：① GitHub Pages（仓库 `Ribacha.github.io`，Actions 自动部署）② 阿里云轻量服务器（杭州，106.14.136.194，已部署待接管） |
+| 域名 | **https://lokykkxx.cn**（正式入口，HTTPS 由服务器 Caddy 自动签发续期） |
+| 托管 | 双通道：① **阿里云轻量服务器（主）** 杭州 106.14.136.194，Caddy 自动 HTTPS（ICP 备案 陕ICP备2026028229号 已通过，2026-10-09）② GitHub Pages（备份，ribacha.github.io） |
 | 本地目录 | `/Users/Zhuanz/Documents/个人网站` |
 
 ---
@@ -96,25 +96,22 @@ src/
 
 | 通道 | 命令 | 说明 |
 |---|---|---|
-| GitHub Pages | `git push` | Actions 自动构建（约 1-2 分钟生效）；域名 lokykkxx.cn 已绑定 |
-| 阿里云服务器 | `./deploy.sh` | build + scp 到 106.14.136.194（Caddy 服务 caddy.service 常驻） |
+| **阿里云服务器（主）** | `./deploy.sh` | build + scp 到 106.14.136.194，秒级生效；**https://lokykkxx.cn 正式入口** |
+| GitHub Pages（备份） | `git push` | Actions 自动构建，ribacha.github.io 可访问（网络走 SSH：`git push git@github.com:Ribacha/Ribacha.github.io.git main`） |
 
-**服务器要点**：Caddy v2.10.2 在 `/usr/local/bin/caddy`；站点根 `/var/www/lokykkxx`；配置 `/etc/caddy/Caddyfile`（当前 `auto_https off` 仅 80 端口）；SSH 免密已配（`ssh root@106.14.136.194` 直连）。
+**服务器要点**：Caddy v2.10.2 在 `/usr/local/bin/caddy`；站点根 `/var/www/lokykkxx`；配置 `/etc/caddy/Caddyfile`（现役 = `Caddyfile.https`：lokykkxx.cn + www 自动 HTTPS，Let's Encrypt 自动签发续期，HTTP 308 跳转；原 HTTP 配置备份在 `Caddyfile.http`）；防火墙已放行 80/443/22；SSH 免密已配（`ssh root@106.14.136.194` 直连，本地代理挂掉时 SSH 仍可用）。
 
 ---
 
 ## 六、待办 / 悬而未决
 
-1. **ICP 备案（最优先）**：阿里云「ICP 备案」控制台提交（身份证+人脸），审核 1-3 周。
-   通过后三连：① 阿里云解析 A 记录 @/www → `106.14.136.194`（替换指向 GitHub 的记录）
-   ② 删除 Caddyfile 中 `auto_https off` 行并重启 caddy（自动签 HTTPS）
-   ③ 页脚加备案号（工信部要求，Contact.astro）
-2. **GitHub HTTPS 证书**：绑定超 3 小时仍未签出（GitHub 慢速队列，最长 24h）。已不重要——迁移到服务器后由 Caddy 签发。若想手动：仓库 Settings → Pages → Enforce HTTPS。
-3. **凪真实 App 图标**：AppIcon.appiconset 目前无图片；做好后把 PNG 放进项目并替换 Projects/projects 页的占位 SVG。
-4. **Uses 页内容**：当前为示意清单，需用户提供真实装备型号替换。
-5. **服务器密码**：初始密码已在聊天中出现，迁移收尾后建议在阿里云控制台改掉。
-6. **SearXNG 清理**（可选）：服务器预装的搜索应用在 8080/14449 端口，不需要可移除。
-7. **Obsidian 同步**：等第一批真实文章。
+1. ~~ICP 备案~~ ✅ 已通过（陕ICP备2026028229号，2026-10-09），解析已切阿里云、HTTPS 已由 Caddy 签发
+2. ~~GitHub HTTPS 证书~~ 已无关紧要：主入口走阿里云 Caddy 自动证书；GitHub 上 ribacha.github.io 仍可用（可选：Settings → Pages 里移除自定义域名绑定）
+3. **凪真实 App 图标**：AppIcon.appiconset 目前无图片；做好后把 PNG 放进项目并替换 Projects/projects 页的占位 SVG
+4. **Uses 页内容**：当前为示意清单，需用户提供真实装备型号替换
+5. **服务器密码**：初始密码已在聊天中出现，迁移收尾后建议在阿里云控制台改掉
+6. **SearXNG 清理**（可选）：服务器预装的搜索应用在 8080/14449 端口，不需要可移除
+7. **Obsidian 同步**：等第一批真实文章
 
 ---
 
